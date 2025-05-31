@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: users_ms
+    jwtSecret: "4A404E635266556A586E3272357538782F413F4428472D4B6150645367566B59"
+    jwtExpirationInMs: "100000000"
+  sql:
+    init:
+      mode: always
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+        jdbc.lob.non_contextual_creation: true
+        generate_statistics: false
+    open-in-view: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mws_users?useSSL=false
+    username: postgres
+    password: "mws_users"
+    hikari:
+      maxLifetime: 1800000
+      maximum-pool-size: 10
+      minimum-idle: 1
+      idle-timeout: 600000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
+    table: flyway_${spring.application.name}
+    enabled: true
+    outOfOrder: true
+server:
+  port: 9000
+  error:
+    include-stacktrace: never
+logging:
+  level:
+    org:
+      hibernate:
+        type: info
+      springframework:
+        web: trace
+
