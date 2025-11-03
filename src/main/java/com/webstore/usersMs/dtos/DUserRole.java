@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class DUserRole {
 
-    private Long userId;
+    private Long userRoleId;
 
     private ERole role;
 }

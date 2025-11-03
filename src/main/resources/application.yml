@@ -19,9 +19,9 @@ spring:
     open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mws_users?useSSL=false
+    url: jdbc:postgresql://localhost:5432/db_parking_dev?useSSL=false
     username: postgres
-    password: "mws_users"
+    password: "And__T..123@"
     hikari:
       maxLifetime: 1800000
       maximum-pool-size: 10
@@ -42,8 +42,5 @@ server:
 logging:
   level:
     org:
-      hibernate:
-        type: info
       springframework:
-        web: trace
 

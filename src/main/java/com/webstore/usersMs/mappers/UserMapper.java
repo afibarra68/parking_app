@@ -2,6 +2,7 @@ package com.webstore.usersMs.mappers;
 
 import static org.mapstruct.ReportingPolicy.IGNORE;
 
+import com.webstore.usersMs.model.UserLogin;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -14,7 +15,7 @@ import com.webstore.usersMs.entities.User;
 @Mapper(unmappedTargetPolicy = IGNORE)
 public interface UserMapper {
 
-    @Mappings({@Mapping(target = "userId", ignore = true)})
+    @Mappings({@Mapping(target = "appUserId", ignore = true)})
     User fromDto(DUser dto);
     //@formatter:on
 
@@ -22,6 +23,8 @@ public interface UserMapper {
 
     DUserCreated toBasicData(User dto);
 
-    DUserLoginResponse toLoginResponse(User dto);
+    UserLogin toLoginResponse(User dto);
+
+    DUserLoginResponse tpDuserLoggin(UserLogin userRes);
 }
 

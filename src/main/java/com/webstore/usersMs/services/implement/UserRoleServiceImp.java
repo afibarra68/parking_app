@@ -31,7 +31,7 @@ public class UserRoleServiceImp implements UserRoleService {
 
     @Override
     public DUserRole update(DUserRole dto) throws WbException {
-        Optional<UserRole> entity =  repository.findUserRole(dto.getUserId());
+        Optional<UserRole> entity =  repository.findUserRole(dto.getUserRoleId());
         if (entity.isEmpty()) {
             throw new WbException(CLIENT_NOT_FOUND);
         }

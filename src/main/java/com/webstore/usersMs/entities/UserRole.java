@@ -28,15 +28,14 @@ public class UserRole {
 
     private static final String ROLE_ID_SEQ = "role_id_sequence";
 
-
     @Id
     @GeneratedValue(generator = ROLE_ID_SEQ, strategy = SEQUENCE)
     @SequenceGenerator(name = ROLE_ID_SEQ, sequenceName = ROLE_ID_SEQ, allocationSize = 1)
     @EqualsAndHashCode.Include
-    private Long rolId;
+    private Long userRoleId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_user_id")
     private User user;
 
     @Builder.Default

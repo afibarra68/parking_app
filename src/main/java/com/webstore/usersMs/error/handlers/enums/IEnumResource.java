@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 public interface IEnumResource {
 
-   String DEFAULT_RESOURCE = "com/wbstore/exceptions/exception";
+   String DEFAULT_RESOURCE = "src/main/resources/exceptions/exception.properties";
 
     String getEnumKey();
 

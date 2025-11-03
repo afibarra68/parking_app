@@ -19,9 +19,16 @@ public class DClient {
 
     private Long clientId;
 
-    private String hashClient;
+    private String fullName;
 
-    @NotNull
-    private List<Product> products;
+    private String typeIdentity;
+
+    private String numberIdentity;
+
+    private String people;
+
+    private String paymentDay;
+
+    private Long clientCompanyId;
 
 }

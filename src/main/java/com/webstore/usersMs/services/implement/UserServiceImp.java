@@ -1,11 +1,12 @@
 package com.webstore.usersMs.services.implement;
 
+import com.webstore.usersMs.model.UserLogin;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
 import com.webstore.usersMs.config.HashUtils;
-import com.webstore.usersMs.config.JwtService;
+import com.webstore.usersMs.config.JwtUtil;
 import com.webstore.usersMs.dtos.DUser;
 import com.webstore.usersMs.dtos.DUserCreated;
 import com.webstore.usersMs.dtos.DUserLogin;
@@ -33,43 +34,60 @@ public class UserServiceImp implements UserService {
 
     private final UserRepository repository;
 
-    private final JwtService  serviceJWT;
+    private final JwtUtil  serviceJWT;
 
     private final UserRoleRepository roleRepository;
 
     private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
     public DUserCreated create(DUser dUser) throws WbException {
-        Pair<String, String> passAndLead = HashUtils.getEncryptData(dUser.getAccesKey());
+
+        Pair<String, String> passAndLead = HashUtils.getEncryptData(dUser.getPassword());
         User entity = mapper.fromDto(dUser);
-        entity.setHashedPassword(passAndLead.getLeft());
+        if (validateUser(entity)) {
+            throw new WbException(WbErrorCode.CAN_NOT_CREATE_USER);
+        }
+
+        entity.setPassword(passAndLead.getLeft());
         entity.setSalt(passAndLead.getRight());
+
+
         return mapper.toBasicData(repository.save(entity));
     }
 
+    public boolean validateUser(User user) {
+        boolean acceptSaving = false;
+        acceptSaving = repository.findByNumberIdentity(user.getNumberIdentity()).isPresent();
+        return acceptSaving;
+    };
+
     public DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse)
         throws WbException {
-        User user = findUserBy(dUser.getUsername());
-
-        mapper.toLoginResponse(user);
+        final User user = findUserBy(dUser.getUsername());
 
         String hashedPassword = HashUtils.getHashedText(dUser.getAccesKey(), user.getSalt());
-        if (!hashedPassword.equals(user.getHashedPassword())) {
+        if (!hashedPassword.equals(user.getPassword())) {
             throw new WbException(WbErrorCode.INCORRECT_ACCESS);
         }
         Pair<String, Date> jwtPair = null;
-        List<String> authorities = roleRepository.findByUser(user.getUserId()).stream()
+        List<String> authorities = roleRepository.findByUser(user.getAppUserId()).stream()
             .map(userRole -> userRole.getRole().toString()).toList();
-        DUserLoginResponse userRes = mapper.toLoginResponse(user);
+        UserLogin userRes = mapper.toLoginResponse(user);
         userRes.setRoles(authorities);
         jwtPair = serviceJWT.generateToken(userRes);
         userRes.setJwt(jwtPair.getLeft());
-        userRes.setTokenType("BEARER");
-        return userRes;
+        userRes.setTokenType("Bearer");
+
+        return  mapper.tpDuserLoggin(userRes);
+    }
+
+    @Override
+    public DUserCreated deleteByDocument(Long userDocument) {
+        return null;
     }
 
     private User findUserBy(String username) throws WbException {
-        Optional<User> entityOptional = repository.findByFirstName(username);
+        Optional<User> entityOptional = repository.findByNumberIdentity(username);
         if (entityOptional.isEmpty()) {
             throw new WbException(WbErrorCode.NOT_FOUND);
         }

@@ -14,6 +14,9 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,16 +41,16 @@ public class Client {
     @EqualsAndHashCode.Include
     private Long clientId;
 
-    @NotNull
-    @JoinColumn(table = "hash_client")
-    private String hashClient;
+    private String fullName;
 
-    @NotNull
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "client_has_product",
-        joinColumns = @JoinColumn(name = "client_client_id"),
-        inverseJoinColumns = @JoinColumn(name = "product_product_id")
-    )
-    private List<Product> products;
+   // private String typeIdentity;
+
+    private String numberIdentity;
+
+    //private String people;
+
+    private LocalDateTime paymentDay;
+
+    private Long clientCompanyId;
 
 }

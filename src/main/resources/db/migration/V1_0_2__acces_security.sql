@@ -1,1 +1,0 @@
-ALTER TABLE users add column salt varchar null;

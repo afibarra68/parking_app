@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.webstore.usersMs.dtos.DUser;
@@ -24,9 +25,14 @@ public class UserController {
 
     private final UserService service;
 
-    @PostMapping()
+    @PostMapping("/create_public_user")
     public DUserCreated createUser(@Valid @RequestBody DUser dUser) throws WbException {
         return service.create(dUser);
+    }
+
+    @PostMapping("/down_public_user")
+    public DUserCreated deleteUser(@RequestParam(required = true) Long userDocument) throws WbException {
+        return service.deleteByDocument(userDocument);
     }
 
 }

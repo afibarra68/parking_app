@@ -50,7 +50,7 @@ public class InsertData {
             .findAny()
             .ifPresent(profile -> generateInitialConfiguration(User.class, TEST_DATA + USER_CSV)
                 .stream()
-                .filter(rUser -> repository.findByFirstName(rUser.getFirstName()).isEmpty())
+                .filter(rUser -> repository.findByNumberIdentity(rUser.getFirstName()).isEmpty())
                 .forEach(r -> {
                     try {
                         repository.save(r);

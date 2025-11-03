@@ -17,8 +17,8 @@ public interface UserRoleRepository extends PagingAndSortingRepository<UserRole,
     @Query("SELECT r FROM UserRole r WHERE r.role = :userRoleId")
     Optional<UserRole> findUserRole(@Param("userRoleId") Long userRoleId);
 
-    @Query("SELECT r FROM UserRole r WHERE r.user.userId = :userId")
-    List<UserRole> findByUser(@Param("userId") Long userId);
+    @Query("SELECT r FROM UserRole r WHERE r.user.appUserId = :userId")
+    List<UserRole> findByUser  (Long userId);
 
     @Query("SELECT r FROM UserRole r WHERE r.user.firstName = :userName")
     List<UserRole> findByUserName(@Param("userName") String  userName);

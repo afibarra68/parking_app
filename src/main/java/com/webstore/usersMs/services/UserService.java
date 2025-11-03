@@ -14,4 +14,5 @@ public interface UserService {
     DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse)
         throws WbException;
 
+    DUserCreated deleteByDocument(Long userDocument);
 }
