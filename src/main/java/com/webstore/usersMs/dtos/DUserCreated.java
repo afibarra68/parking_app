@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class DUserCreated {
 
-    private Long userId;
+    private Long appUserId;
 
     @NotNull
     private String firstName;

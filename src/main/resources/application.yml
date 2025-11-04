@@ -19,7 +19,7 @@ spring:
     open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/db_parking_dev?useSSL=false
+    url: jdbc:postgresql://localhost:5432/db_parking_local?useSSL=false
     username: postgres
     password: "And__T..123@"
     hikari:
@@ -43,4 +43,5 @@ logging:
   level:
     org:
       springframework:
+        web: debug
 

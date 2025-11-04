@@ -21,6 +21,7 @@ public interface UserMapper {
 
     DUser toDto(User dto);
 
+    @Mapping(target = "appUserId", source = "appUserId")
     DUserCreated toBasicData(User dto);
 
     UserLogin toLoginResponse(User dto);

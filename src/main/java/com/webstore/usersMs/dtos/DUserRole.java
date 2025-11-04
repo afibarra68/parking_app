@@ -1,6 +1,7 @@
 package com.webstore.usersMs.dtos;
 
 import com.webstore.usersMs.entities.enums.ERole;
+import com.webstore.usersMs.error.handlers.enums.EnumResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class DUserRole {
 
-    private Long userRoleId;
+    private String numberIdentity;
 
-    private ERole role;
+    private String role;
 }

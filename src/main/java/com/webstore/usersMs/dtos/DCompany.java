@@ -1,10 +1,10 @@
 package com.webstore.usersMs.dtos;
 
-import com.webstore.usersMs.entities.Product;
-import lombok.*;
-
-import javax.validation.constraints.NotNull;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder

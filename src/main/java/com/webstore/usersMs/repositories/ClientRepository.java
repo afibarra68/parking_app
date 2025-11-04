@@ -4,6 +4,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.webstore.usersMs.entities.Client;
+
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,4 +14,6 @@ public interface ClientRepository extends PagingAndSortingRepository<Client, Lon
     Client save(Client client);
 
     Optional<Client> findByClientId(Long clientId);
+
+    List<Client> findByNumberIdentity(String document);
 }

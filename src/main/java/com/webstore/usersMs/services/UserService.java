@@ -11,8 +11,9 @@ public interface UserService {
 
     DUserCreated create(DUser dUser) throws WbException;
 
-    DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse)
-        throws WbException;
+    DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse) throws WbException;
+
+    DUserCreated getUser(String numberIdentity) throws WbException;
 
     DUserCreated deleteByDocument(Long userDocument);
 }

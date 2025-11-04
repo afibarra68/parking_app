@@ -1,1 +1,2 @@
-userId,firstName,hashedPassword,secondName,lastName,secondLastName,phoneNumber,salt
+firstName,lastName,secondName,secondLastname,numberIdentity,processorId,sha,password,salt,
+andres,felipe,ibarra,Hoyos,1777777777771 ,1,BR6298040990005612006101018O8,0ff209324fb8083667526cf10fa8a41d,03f9c23c11c2ce94341cdb22ec5edc79
