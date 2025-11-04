@@ -11,6 +11,8 @@ import com.webstore.usersMs.mappers.ClientMapper;
 import com.webstore.usersMs.repositories.ClientRepository;
 import com.webstore.usersMs.services.ClientService;
 import com.webstore.usersMs.error.WbException;
+
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +39,11 @@ public class ClientServiceImp implements ClientService {
         }
         Client dbClient = entity.get();
         return mapper.toDto(repository.save(mapper.merge(dto, dbClient )));
+    }
+
+    @Override
+    public List<DClient> findBy(String document) {
+        return mapper.toList(repository.findByNumberIdentity(document));
     }
 
 }

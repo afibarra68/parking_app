@@ -31,7 +31,6 @@ public class User {
     private Long appUserId;
 
     @NotNull
-    @Column(name = "fist_name")
     private String firstName;
 
     @NotNull

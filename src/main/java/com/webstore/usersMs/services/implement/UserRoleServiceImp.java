@@ -2,6 +2,10 @@ package com.webstore.usersMs.services.implement;
 
 import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.CLIENT_NOT_FOUND;
 
+import com.webstore.usersMs.dtos.DUserCreated;
+import com.webstore.usersMs.entities.User;
+import com.webstore.usersMs.entities.enums.ERole;
+import com.webstore.usersMs.services.UserService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +15,9 @@ import com.webstore.usersMs.mappers.UserRoleMapper;
 import com.webstore.usersMs.repositories.UserRoleRepository;
 import com.webstore.usersMs.services.UserRoleService;
 import com.webstore.usersMs.error.WbException;
+
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -22,21 +28,30 @@ public class UserRoleServiceImp implements UserRoleService {
 
     private final UserRoleRepository repository;
 
+    private final UserService userService;
+
     private final UserRoleMapper mapper = Mappers.getMapper(UserRoleMapper.class);
 
     @Override
-    public DUserRole create(DUserRole client) throws WbException {
-        return mapper.toDto(repository.save(mapper.fromDto(client)));
+    public void create(DUserRole role) throws WbException {
+        DUserCreated user = userService.getUser(role.getNumberIdentity());
+
+        UserRole roleCreated =  UserRole
+                .builder()
+                .role(ERole.valueOf(role.getRole()))
+                .user(User
+                        .builder()
+                        .appUserId(user.getAppUserId())
+                        .build())
+                .build();
+        log.info( "{}, {}", roleCreated, user.getAppUserId());
+
+        repository.save(roleCreated);
     }
 
     @Override
-    public DUserRole update(DUserRole dto) throws WbException {
-        Optional<UserRole> entity =  repository.findUserRole(dto.getUserRoleId());
-        if (entity.isEmpty()) {
-            throw new WbException(CLIENT_NOT_FOUND);
-        }
-        UserRole userRole = entity.get();
-        return mapper.toDto(repository.save(mapper.merge(dto, userRole )));
+    public void deleteByRoleId(Long userRoleId) {
+        repository.deleteById(userRoleId);
     }
 
 }

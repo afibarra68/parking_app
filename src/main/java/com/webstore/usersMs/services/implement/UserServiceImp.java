@@ -19,9 +19,11 @@ import com.webstore.usersMs.services.UserService;
 import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.error.handlers.enums.WbErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -34,7 +36,7 @@ public class UserServiceImp implements UserService {
 
     private final UserRepository repository;
 
-    private final JwtUtil  serviceJWT;
+    private final JwtUtil serviceJWT;
 
     private final UserRoleRepository roleRepository;
 
@@ -59,10 +61,12 @@ public class UserServiceImp implements UserService {
         boolean acceptSaving = false;
         acceptSaving = repository.findByNumberIdentity(user.getNumberIdentity()).isPresent();
         return acceptSaving;
-    };
+    }
+
+    ;
 
     public DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse)
-        throws WbException {
+            throws WbException {
         final User user = findUserBy(dUser.getUsername());
 
         String hashedPassword = HashUtils.getHashedText(dUser.getAccesKey(), user.getSalt());
@@ -71,19 +75,31 @@ public class UserServiceImp implements UserService {
         }
         Pair<String, Date> jwtPair = null;
         List<String> authorities = roleRepository.findByUser(user.getAppUserId()).stream()
-            .map(userRole -> userRole.getRole().toString()).toList();
+                .map(userRole -> userRole.getRole().toString()).toList();
         UserLogin userRes = mapper.toLoginResponse(user);
         userRes.setRoles(authorities);
         jwtPair = serviceJWT.generateToken(userRes);
         userRes.setJwt(jwtPair.getLeft());
         userRes.setTokenType("Bearer");
 
-        return  mapper.tpDuserLoggin(userRes);
+        return mapper.tpDuserLoggin(userRes);
     }
 
     @Override
     public DUserCreated deleteByDocument(Long userDocument) {
         return null;
+    }
+
+
+    @Override
+    public DUserCreated getUser(String numberIdentity) throws WbException {
+        Optional<User> userOpt = repository.findByNumberIdentity(numberIdentity);
+
+        if (userOpt.isPresent()) {
+            return mapper.toBasicData(userOpt.get());
+
+        }
+        throw new WbException(WbErrorCode.NOT_FOUND);
     }
 
     private User findUserBy(String username) throws WbException {
