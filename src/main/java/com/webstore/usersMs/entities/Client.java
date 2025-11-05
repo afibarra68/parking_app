@@ -43,11 +43,7 @@ public class Client {
 
     private String fullName;
 
-   // private String typeIdentity;
-
     private String numberIdentity;
-
-    //private String people;
 
     private LocalDateTime paymentDay;
 

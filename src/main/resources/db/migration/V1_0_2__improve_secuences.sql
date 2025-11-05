@@ -1,5 +1,5 @@
 
-CREATE TABLE discount (
+CREATE TABLE IF NOT EXISTS discount (
 	discount_id int4 NOT NULL,
 	percent_discount float8 NULL,
 	name_discount varchar(50) NULL,
@@ -12,7 +12,7 @@ CREATE TABLE discount (
 );
 
 
-CREATE TABLE billing_price (
+CREATE TABLE IF NOT EXISTS billing_price (
 	billing_price_id int8 NOT NULL,
 	status varchar(20) NULL,
 	date_start_disabled date NULL,
@@ -33,7 +33,7 @@ CREATE TABLE billing_price (
 
 -- DROP TABLE open_transaction;
 
-CREATE TABLE open_transaction (
+CREATE TABLE IF NOT EXISTS open_transaction (
 	open_transaction_id int8 NOT NULL,
 	start_time time NULL,
 	start_day date NULL,
@@ -58,7 +58,7 @@ CREATE TABLE open_transaction (
 
 
 
-CREATE TABLE closed_transaction (
+CREATE TABLE IF NOT EXISTS closed_transaction (
 	closed_transaction_id int8 NOT NULL,
 	start_time time NULL,
 	start_day date NULL,
@@ -83,7 +83,7 @@ CREATE TABLE closed_transaction (
 	CONSTRAINT fk_company_id FOREIGN KEY (company_company_id) REFERENCES company(company_id)
 );
 
-CREATE TABLE montly (
+CREATE TABLE IF NOT EXISTS montly (
 	montly_id int8 NOT NULL,
 	vehicle_plate varchar(50) NULL,
 	service_id varchar(20) NULL,
