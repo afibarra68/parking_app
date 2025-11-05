@@ -23,7 +23,7 @@ public class DCountry {
 
     private String isoCode;
 
-    private LocalDate timezone;
+    private String timezone;
 
     private String lang;
 
