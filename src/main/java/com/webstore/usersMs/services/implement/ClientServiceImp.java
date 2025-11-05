@@ -43,7 +43,7 @@ public class ClientServiceImp implements ClientService {
 
     @Override
     public List<DClient> findBy(String document) {
-        return mapper.toList(repository.findByNumberIdentity(document));
+        return mapper.toList(repository.findClientByNumberIdentity(document));
     }
 
 }

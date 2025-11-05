@@ -15,5 +15,5 @@ public interface ClientRepository extends PagingAndSortingRepository<Client, Lon
 
     Optional<Client> findByClientId(Long clientId);
 
-    List<Client> findByNumberIdentity(String document);
+    List<Client> findClientByNumberIdentity(String document);
 }
