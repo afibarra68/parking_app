@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 
 import com.webstore.usersMs.dtos.DClient;
 import com.webstore.usersMs.entities.Client;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +24,13 @@ public interface ClientMapper {
     @Mapping(target = "paymentDay", ignore = true)
     Client merge(DClient dto, @MappingTarget Client client);
 
-    default List<DClient> toList(List<Client> list){
+    default List<DClient> toList(List<Client> list) {
         return list.stream().map(this::toDto).collect(Collectors.toList());
     }
 
     default Page<DClient> toPage(Page<Client> page) {
         return page.map(this::toDto);
     }
-  
+
 }
 

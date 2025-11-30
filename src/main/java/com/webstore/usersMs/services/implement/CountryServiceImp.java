@@ -9,6 +9,8 @@ import com.webstore.usersMs.services.CountryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,5 +48,16 @@ public class CountryServiceImp implements CountryService {
         return mapper.toList(data);
     }
 
+    @Override
+    public Page<DCountry> findByPageable(Long countryId, String description, String name, Pageable pageable) throws WbException {
+        Page<Country> page = repository.findByPageable(countryId, description, name, pageable);
+        return mapper.toPage(page);
+    }
+
+    @Override
+    public List<DCountry> findByQueryable(Long countryId, String description, String name) throws WbException {
+        List<Country> data = repository.findByQueryable(countryId, description, name);
+        return mapper.toList(data);
+    }
 
 }

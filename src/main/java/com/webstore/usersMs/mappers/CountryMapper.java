@@ -1,9 +1,12 @@
 package com.webstore.usersMs.mappers;
 
+import com.webstore.usersMs.dtos.DClient;
 import com.webstore.usersMs.dtos.DCountry;
+import com.webstore.usersMs.entities.Client;
 import com.webstore.usersMs.entities.Country;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +24,9 @@ public interface CountryMapper {
 
     default List<DCountry> toList(List<Country> list){
         return list.stream().map(this::toDto).collect(Collectors.toList());
+    }
+    default Page<DCountry> toPage(Page<Country> page) {
+        return page.map(this::toDto);
     }
 
 }
