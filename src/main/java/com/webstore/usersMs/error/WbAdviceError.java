@@ -3,6 +3,8 @@ package com.webstore.usersMs.error;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,8 +25,10 @@ public class WbAdviceError {
     @ExceptionHandler({WbException.class})
     public ResponseEntity<ExceptionsHandler> handleException(WbException ex) throws WbException {
         service.logEx(log, ex);
+        HttpStatus httpStatus = ex.exceptionCode.getStatusHttp();
+        HttpStatusCode statusCode = httpStatus;
         return ResponseEntity
-                .status(ex.exceptionCode.getStatusHttp())
+                .status(statusCode)
                 .body(ExceptionsHandler.builder()
                         .code(ex.getExceptionCode().getStatusHttpValue())
                         .wbErrorCode(ex.getExceptionCode())

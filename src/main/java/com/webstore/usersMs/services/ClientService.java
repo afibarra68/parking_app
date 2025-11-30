@@ -2,8 +2,8 @@ package com.webstore.usersMs.services;
 
 import com.webstore.usersMs.dtos.DClient;
 import com.webstore.usersMs.error.WbException;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ClientService {
 
@@ -11,5 +11,5 @@ public interface ClientService {
 
     DClient update(DClient client) throws WbException;
 
-    List<DClient> findBy(String document);
+    Page<DClient> findBy(String document, Pageable pageable);
 }

@@ -1,6 +1,8 @@
 package com.webstore.usersMs.controllers;
 
-import org.apache.catalina.LifecycleState;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,9 +17,6 @@ import com.webstore.usersMs.services.ClientService;
 import com.webstore.usersMs.error.WbException;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-
-import java.awt.print.Pageable;
-import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -39,8 +38,10 @@ public class ClientController {
     }
 
     @GetMapping
-    public List<DClient> getClients(@RequestParam(required = false) String document) throws WbException {
-        return service.findBy(document);
+    public Page<DClient> getClients(
+            @RequestParam(required = false) String document,
+            Pageable pageable) throws WbException {
+        return service.findBy(document, pageable);
     }
 
 }

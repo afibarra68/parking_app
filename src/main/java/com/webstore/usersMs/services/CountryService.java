@@ -1,6 +1,5 @@
 package com.webstore.usersMs.services;
 
-import com.webstore.usersMs.dtos.DClient;
 import com.webstore.usersMs.dtos.DCountry;
 import com.webstore.usersMs.error.WbException;
 

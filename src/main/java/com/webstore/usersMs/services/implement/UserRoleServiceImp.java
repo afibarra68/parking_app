@@ -1,7 +1,5 @@
 package com.webstore.usersMs.services.implement;
 
-import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.CLIENT_NOT_FOUND;
-
 import com.webstore.usersMs.dtos.DUserCreated;
 import com.webstore.usersMs.entities.User;
 import com.webstore.usersMs.entities.enums.ERole;
@@ -16,10 +14,9 @@ import com.webstore.usersMs.repositories.UserRoleRepository;
 import com.webstore.usersMs.services.UserRoleService;
 import com.webstore.usersMs.error.WbException;
 
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import javax.validation.constraints.NotNull;
 
 @Service
 @Log4j2
@@ -50,7 +47,7 @@ public class UserRoleServiceImp implements UserRoleService {
     }
 
     @Override
-    public void deleteByRoleId(Long userRoleId) {
+    public void deleteByRoleId(@NotNull Long userRoleId) {
         repository.deleteById(userRoleId);
     }
 

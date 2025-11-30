@@ -3,6 +3,8 @@ package com.webstore.usersMs.services.implement;
 import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.CLIENT_NOT_FOUND;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.webstore.usersMs.dtos.DClient;
@@ -12,7 +14,6 @@ import com.webstore.usersMs.repositories.ClientRepository;
 import com.webstore.usersMs.services.ClientService;
 import com.webstore.usersMs.error.WbException;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -42,8 +43,8 @@ public class ClientServiceImp implements ClientService {
     }
 
     @Override
-    public List<DClient> findBy(String document) {
-        return mapper.toList(repository.findClientByNumberIdentity(document));
+    public Page<DClient> findBy(String document, Pageable pageable) {
+        return mapper.toPage(repository.findBy(document, pageable));
     }
 
 }

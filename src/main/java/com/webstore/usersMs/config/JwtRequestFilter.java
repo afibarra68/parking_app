@@ -3,7 +3,6 @@ package com.webstore.usersMs.config;
 import com.webstore.usersMs.entities.enums.ERole;
 import com.webstore.usersMs.error.handlers.enums.WbErrorCode;
 import com.webstore.usersMs.model.UserLogin;
-import com.webstore.usersMs.utils.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -14,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,13 +23,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.extern.log4j.Log4j2;
 
-import static com.webstore.usersMs.utils.Constants._ACCESS_LEVEL_CLAIM;
 import static com.webstore.usersMs.utils.Constants._APP_USER_ID_CLAIM;
 import static com.webstore.usersMs.utils.Constants._COMPANY_ID_CLAIM;
 import static com.webstore.usersMs.utils.Constants._COMPANY_NAME_CLAIM;
@@ -39,8 +41,6 @@ import static com.webstore.usersMs.utils.Constants._ROLES_CLAIM;
 import static com.webstore.usersMs.utils.Constants._SECOND_LAST_NAME_CLAIM;
 import static com.webstore.usersMs.utils.Constants._SECOND_NAME_CLAIM;
 import static java.time.ZoneId.systemDefault;
-import static java.util.Objects.nonNull;
-import static java.util.Optional.ofNullable;
 
 @Log4j2
 @Component
@@ -57,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @SneakyThrows
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
             if (util.existsAuthJWT(request,response)) {
@@ -101,6 +101,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
     private UserLogin createAuthenticatedUser(Claims claims, String jwt) {
+        Object rolesClaim = claims.get(_ROLES_CLAIM);
+        List<String> roles = Collections.emptyList();
+        if (rolesClaim instanceof List<?>) {
+            roles = ((List<?>) rolesClaim).stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+        }
+        
         return UserLogin
                 .builder()
                 .numberIdentity(claims.getSubject())
@@ -113,7 +122,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .companyId((Long) claims.get(_COMPANY_ID_CLAIM))
                 .companyName((String) claims.get(_COMPANY_NAME_CLAIM))
                 .companyDescription((String) claims.get(_COMPANY_NAME_CLAIM))
-                .roles((List<String>) claims.get(_ROLES_CLAIM))
+                .roles(roles)
                 .jwt(jwt)
                 .build();
     }
