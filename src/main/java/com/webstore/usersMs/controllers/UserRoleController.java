@@ -30,7 +30,7 @@ public class UserRoleController {
     }
 
     @DeleteMapping("/{userRoleId}")
-    public void deleteUser(@PathVariable Long userRoleId) throws WbException {
+    public void deleteUserRole(@Valid @PathVariable Long userRoleId) throws WbException {
         service.deleteByRoleId(userRoleId);
     }
 

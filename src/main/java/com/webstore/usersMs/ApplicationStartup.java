@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import com.webstore.usersMs.h2Data.InsertData;
@@ -26,7 +27,7 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
    }
 
    @Override
-   public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
+   public void onApplicationEvent(@NonNull ApplicationReadyEvent applicationReadyEvent) {
       if (!started) {
          log.info(".::START::.");
          started = true;

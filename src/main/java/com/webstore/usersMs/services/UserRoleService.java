@@ -1,6 +1,5 @@
 package com.webstore.usersMs.services;
 
-import com.webstore.usersMs.dtos.DUserCreated;
 import com.webstore.usersMs.dtos.DUserRole;
 import com.webstore.usersMs.error.WbException;
 

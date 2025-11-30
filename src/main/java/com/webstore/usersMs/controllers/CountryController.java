@@ -1,9 +1,7 @@
 package com.webstore.usersMs.controllers;
 
-import com.webstore.usersMs.dtos.DClient;
 import com.webstore.usersMs.dtos.DCountry;
 import com.webstore.usersMs.error.WbException;
-import com.webstore.usersMs.services.ClientService;
 import com.webstore.usersMs.services.CountryService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;

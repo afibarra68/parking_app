@@ -32,8 +32,6 @@ import lombok.extern.log4j.Log4j2;
 @RequiredArgsConstructor
 public class UserServiceImp implements UserService {
 
-    private static final String EMPTY = "";
-
     private final UserRepository repository;
 
     private final JwtUtil serviceJWT;

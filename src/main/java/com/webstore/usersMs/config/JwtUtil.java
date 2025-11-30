@@ -1,7 +1,6 @@
 package com.webstore.usersMs.config;
 
 import com.webstore.usersMs.model.UserLogin;
-import com.webstore.usersMs.utils.Constants;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,18 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.WebUtils;
 
-import com.webstore.usersMs.dtos.DUserLoginResponse;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.Key;
@@ -30,7 +25,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.webstore.usersMs.utils.Constants._APP_USER_ID_CLAIM;
-import static com.webstore.usersMs.utils.Constants._AUTHORITIES_CLAIM;
 import static com.webstore.usersMs.utils.Constants._COMPANY_ID_CLAIM;
 import static com.webstore.usersMs.utils.Constants._COMPANY_NAME_CLAIM;
 import static com.webstore.usersMs.utils.Constants._FIRST_NAME_CLAIM;
@@ -39,7 +33,6 @@ import static com.webstore.usersMs.utils.Constants._ROLES_CLAIM;
 import static com.webstore.usersMs.utils.Constants._SECOND_LAST_NAME_CLAIM;
 import static com.webstore.usersMs.utils.Constants._SECOND_NAME_CLAIM;
 import static io.jsonwebtoken.SignatureAlgorithm.HS256;
-import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
 import javax.crypto.spec.SecretKeySpec;
