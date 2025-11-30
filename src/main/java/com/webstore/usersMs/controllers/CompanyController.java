@@ -5,6 +5,9 @@ import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.services.CompanyService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,6 +44,15 @@ public class CompanyController {
             @RequestParam(required = false) String companyName,
             @RequestParam(required = false) String numberIdentity) throws WbException {
         return service.getBy(companyId, companyName, numberIdentity);
+    }
+
+    @GetMapping("/pageable")
+    public Page<DCompany> getCompaniesPageable(
+            @RequestParam(required = false) Long companyId,
+            @RequestParam(required = false) String companyName,
+            @RequestParam(required = false) String numberIdentity,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return service.findByPageable(companyId, companyName, numberIdentity, pageable);
     }
 
 }

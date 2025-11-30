@@ -1,6 +1,8 @@
 package com.webstore.usersMs.repositories;
 
 import com.webstore.usersMs.entities.Company;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +24,20 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             @Param("companyId") Long companyId,
             @Param("companyName") String companyName,
             @Param("numberIdentity") String numberIdentity);
+
+    @Query(value = "SELECT c FROM Company c " +
+            "WHERE (:companyId IS NULL OR :companyId = c.companyId) " +
+            "AND (:companyName IS NULL OR :companyName = '' OR c.companyName LIKE '%' || :companyName || '%') " +
+            "AND (:numberIdentity IS NULL OR :numberIdentity = '' OR c.numberIdentity LIKE '%' || :numberIdentity || '%')",
+            countQuery = "SELECT COUNT(c) FROM Company c " +
+            "WHERE (:companyId IS NULL OR :companyId = c.companyId) " +
+            "AND (:companyName IS NULL OR :companyName = '' OR c.companyName LIKE '%' || :companyName || '%') " +
+            "AND (:numberIdentity IS NULL OR :numberIdentity = '' OR c.numberIdentity LIKE '%' || :numberIdentity || '%')")
+    Page<Company> findByPageable(
+            @Param("companyId") Long companyId,
+            @Param("companyName") String companyName,
+            @Param("numberIdentity") String numberIdentity,
+            Pageable pageable);
 
 }
 

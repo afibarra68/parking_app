@@ -1,0 +1,3 @@
+CREATE SEQUENCE IF NOT EXISTS business_service_business_service_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 CACHE 10 NO CYCLE;
+CREATE SEQUENCE IF NOT EXISTS company_business_service_company_business_service_id_seq INCREMENT BY 1 START WITH 1 MINVALUE 1 CACHE 10 NO CYCLE;
+

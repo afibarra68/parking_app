@@ -3,6 +3,8 @@ package com.webstore.usersMs.services.implement;
 import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.CLIENT_NOT_FOUND;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.webstore.usersMs.dtos.DCompany;
@@ -75,6 +77,11 @@ public class CompanyServiceImp implements CompanyService {
     public List<DCompany> getBy(Long companyId, String companyName, String numberIdentity) throws WbException {
         List<Company> data = repository.findBy(companyId, companyName, numberIdentity);
         return mapper.toList(data);
+    }
+
+    @Override
+    public Page<DCompany> findByPageable(Long companyId, String companyName, String numberIdentity, Pageable pageable) {
+        return repository.findByPageable(companyId, companyName, numberIdentity, pageable).map(mapper::toDto);
     }
 
 }
