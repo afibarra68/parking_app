@@ -56,10 +56,13 @@ public class BillingPrice {
     @JoinColumn(name = "company_company_id")
     private Company company;
 
-    @Column(name = "start")
+    @Column(name = "\"start\"")
     private Integer start;
 
-    @Column(name = "end")
+    @Column(name = "\"end\"")
     private Integer end;
+
+    @Column(name = "mount")
+    private Long mount;
 }
 

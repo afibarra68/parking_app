@@ -1,0 +1,49 @@
+# Configuración para producción en Google Cloud
+spring:
+  application:
+    name: users_ms
+  jpa:
+    hibernate:
+      ddl-auto: none
+    generate-ddl: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+        jdbc.lob.non_contextual_creation: true
+        generate_statistics: false
+    open-in-view: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    # Cloud SQL connection usando socket factory
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db_parking_local?useSSL=false}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    hikari:
+      maxLifetime: 1800000
+      maximum-pool-size: 10
+      minimum-idle: 1
+      idle-timeout: 600000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 0
+    table: flyway_${spring.application.name}
+    enabled: true
+    outOfOrder: true
+  jwtSecret: ${SPRING_JWT_SECRET:4A404E635266556A586E3272357538782F413F4428472D4B6150645367566B59}
+  jwtExpirationInMs: ${SPRING_JWT_EXPIRATION:100000000}
+
+server:
+  port: ${PORT:9000}
+  error:
+    include-stacktrace: never
+
+logging:
+  level:
+    root: INFO
+    com.webstore.usersMs: INFO
+    org.springframework.web: INFO
+    org.hibernate: WARN
+
