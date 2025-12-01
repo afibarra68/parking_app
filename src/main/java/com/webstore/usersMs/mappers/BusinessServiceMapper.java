@@ -3,6 +3,7 @@ package com.webstore.usersMs.mappers;
 import static org.mapstruct.ReportingPolicy.IGNORE;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.springframework.data.domain.Page;
 
@@ -19,6 +20,7 @@ public interface BusinessServiceMapper {
 
     DBusinessService toDto(BusinessService entity);
 
+    @Mapping(target = "createdDate", ignore = true)
     BusinessService merge(DBusinessService dto, @MappingTarget BusinessService businessService);
 
     default List<DBusinessService> toList(List<BusinessService> list) {
