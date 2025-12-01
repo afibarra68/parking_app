@@ -9,8 +9,13 @@ import java.util.Set;
 
 public enum ERole implements IEnumResource {
 
+    SUPER_USER,
+    SUPER_ADMIN,
+    ADMINISTRATOR_PRINCIPAL,
     ADMIN_APP,
-    USER_APP;
+    USER_APP,
+    AUDIT_SELLER,
+    PARKING_ATTENDANT;
 
     private ERole parent;
 
