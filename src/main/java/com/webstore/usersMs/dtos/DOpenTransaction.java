@@ -50,5 +50,7 @@ public class DOpenTransaction {
     private Long appUserAppUserSeller;
 
     private String vehiclePlate;
+
+    private String tipoVehiculo;
 }
 

@@ -9,13 +9,18 @@ import com.webstore.usersMs.config.HashUtils;
 import com.webstore.usersMs.config.JwtUtil;
 import com.webstore.usersMs.dtos.DUser;
 import com.webstore.usersMs.dtos.DUserCreated;
+import com.webstore.usersMs.dtos.DUserList;
 import com.webstore.usersMs.dtos.DUserLogin;
 import com.webstore.usersMs.dtos.DUserLoginResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.webstore.usersMs.entities.User;
 import com.webstore.usersMs.mappers.UserMapper;
 import com.webstore.usersMs.repositories.UserRepository;
 import com.webstore.usersMs.repositories.UserRoleRepository;
+import com.webstore.usersMs.repositories.CompanyRepository;
 import com.webstore.usersMs.services.UserService;
+import com.webstore.usersMs.entities.Company;
 import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.error.handlers.enums.WbErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +42,8 @@ public class UserServiceImp implements UserService {
     private final JwtUtil serviceJWT;
 
     private final UserRoleRepository roleRepository;
+
+    private final CompanyRepository companyRepository;
 
     private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
@@ -106,5 +113,33 @@ public class UserServiceImp implements UserService {
             throw new WbException(WbErrorCode.NOT_FOUND);
         }
         return entityOptional.get();
+    }
+
+    @Override
+    public Page<DUserList> findByPageable(Long appUserId, String numberIdentity, Long companyCompanyId, Pageable pageable) {
+        Page<User> users = repository.findByPageable(appUserId, numberIdentity, companyCompanyId, pageable);
+        return users.map(user -> {
+            DUserList.DUserListBuilder builder = DUserList.builder()
+                    .appUserId(user.getAppUserId())
+                    .firstName(user.getFirstName())
+                    .secondName(user.getSecondName())
+                    .lastName(user.getLastName())
+                    .secondLastname(user.getSecondLastname())
+                    .numberIdentity(user.getNumberIdentity())
+                    .processorId(user.getProcessorId())
+                    .sha(user.getSha())
+                    .salt(user.getSalt())
+                    .accessCredential(user.getAccessCredential())
+                    .accessLevel(user.getAccessLevel())
+                    .companyCompanyId(user.getCompanyCompanyId());
+
+            // Obtener nombre de la compañía si existe
+            if (user.getCompanyCompanyId() != null) {
+                Optional<Company> company = companyRepository.findByCompanyId(user.getCompanyCompanyId());
+                company.ifPresent(c -> builder.companyName(c.getCompanyName()));
+            }
+
+            return builder.build();
+        });
     }
 }

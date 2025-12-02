@@ -4,6 +4,8 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -19,6 +21,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+
+import com.webstore.usersMs.entities.enums.ETipoVehiculo;
 
 @Data
 @Entity
@@ -88,5 +92,9 @@ public class OpenTransaction {
 
     @Column(name = "vehicle_plate")
     private String vehiclePlate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_vehiculo")
+    private ETipoVehiculo tipoVehiculo;
 }
 
