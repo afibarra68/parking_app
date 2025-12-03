@@ -48,9 +48,11 @@ public class DUserLoginResponse implements Serializable {
    @NotNull
    private List<String> roles;
 
-   private Long companyName;
+   private String companyName;
 
-   private Long companyDescription;
+   private String companyDescription;
+
+   private Long companyId;
 
    private Boolean pwdMsgToExpire;
 

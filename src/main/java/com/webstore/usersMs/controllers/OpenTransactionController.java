@@ -44,5 +44,10 @@ public class OpenTransactionController {
             @PageableDefault(size = 10) Pageable pageable) {
         return service.findBy(status, companyCompanyId, pageable);
     }
+
+    @GetMapping("/by-plate")
+    public DOpenTransaction getByVehiclePlate(@RequestParam String vehiclePlate) throws WbException {
+        return service.findByVehiclePlate(vehiclePlate);
+    }
 }
 

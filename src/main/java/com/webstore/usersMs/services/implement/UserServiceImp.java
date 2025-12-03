@@ -3,6 +3,7 @@ package com.webstore.usersMs.services.implement;
 import com.webstore.usersMs.model.UserLogin;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mapstruct.factory.Mappers;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.webstore.usersMs.config.HashUtils;
@@ -83,6 +84,28 @@ public class UserServiceImp implements UserService {
                 .map(userRole -> userRole.getRole().toString()).toList();
         UserLogin userRes = mapper.toLoginResponse(user);
         userRes.setRoles(authorities);
+        
+        // Obtener información de la empresa si el usuario está relacionado a una
+        if (user.getCompanyCompanyId() != null) {
+            Optional<Company> companyOpt = companyRepository.findByCompanyId(user.getCompanyCompanyId());
+            if (companyOpt.isPresent()) {
+                Company company = companyOpt.get();
+                userRes.setCompanyId(company.getCompanyId());
+                userRes.setCompanyName(company.getCompanyName());
+                // Si la empresa tiene descripción, se puede agregar aquí
+                // Por ahora, usamos el numberIdentity como descripción alternativa
+                userRes.setCompanyDescription(company.getNumberIdentity());
+                log.info("Compañía asignada al usuario en login: companyId={}, companyName={}", 
+                    company.getCompanyId(), company.getCompanyName());
+            } else {
+                log.warn("Usuario tiene companyCompanyId={} pero la compañía no existe en la BD", 
+                    user.getCompanyCompanyId());
+            }
+        } else {
+            log.warn("Usuario sin compañía asociada. appUserId={}, numberIdentity={}", 
+                user.getAppUserId(), user.getNumberIdentity());
+        }
+        
         jwtPair = serviceJWT.generateToken(userRes);
         userRes.setJwt(jwtPair.getLeft());
         userRes.setTokenType("Bearer");
@@ -141,5 +164,21 @@ public class UserServiceImp implements UserService {
 
             return builder.build();
         });
+    }
+
+    @Override
+    public UserLogin getAuthenticatedUser() {
+        // El JwtRequestFilter ya procesó el token y estableció el Authentication
+        // en el SecurityContext antes de que la petición llegue aquí
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication != null && authentication.getPrincipal() instanceof UserLogin) {
+            UserLogin userLogin = (UserLogin) authentication.getPrincipal();
+            log.debug("Usuario autenticado obtenido del SecurityContext: {}", userLogin.getAppUserId());
+            return userLogin;
+        }
+        
+        log.warn("No se encontró usuario autenticado en el SecurityContext. El token puede no haber sido procesado correctamente.");
+        return null;
     }
 }

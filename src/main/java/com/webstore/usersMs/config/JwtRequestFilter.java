@@ -7,7 +7,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -55,12 +54,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         this.util = util;
     }
 
-    @SneakyThrows
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            if (util.existsAuthJWT(request,response)) {
+            if (util.existsAuthJWT(request, response)) {
                 Pair<Claims, String> pair = util.validateToken(request);
 
                 List<String> authorities = Optional.ofNullable(pair.getLeft())
@@ -75,28 +73,71 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
                 if (!authorities.isEmpty()) {
                     setUpSpringAuthentication(pair.getLeft(), authorities, pair.getRight());
+                } else {
+                    log.warn("Token válido pero sin roles para el usuario: {}", pair.getLeft() != null ? pair.getLeft().getSubject() : "unknown");
                 }
             }
 
             filterChain.doFilter(request, response);
 
-            } catch (AccessDeniedException | ExpiredJwtException | UnsupportedJwtException | MalformedJwtException e) {
+        } catch (ExpiredJwtException e) {
+            log.error("Token expirado: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expirado");
+        } catch (UnsupportedJwtException | MalformedJwtException e) {
+            log.error("Token inválido: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+        } catch (IllegalArgumentException e) {
+            log.error("Error al procesar roles del token: {}", e.getMessage());
             SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            (response).sendError(HttpServletResponse.SC_FORBIDDEN, WbErrorCode.ACCESS_DENIED.getEnumKey());
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Error al procesar roles: " + e.getMessage());
+        } catch (AccessDeniedException e) {
+            log.error("Acceso denegado: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, WbErrorCode.ACCESS_DENIED.getEnumKey());
+        } catch (Exception e) {
+            log.error("Error inesperado en el filtro JWT: {}", e.getMessage(), e);
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error interno del servidor");
         }
     }
 
 
     private void setUpSpringAuthentication(Claims claims, List<String> authorities, String jwt) {
-        ArrayList<SimpleGrantedAuthority> collect = authorities
-                .stream()
-                .map(s -> ERole.valueOf(s).getSplittedRole())
-                .map(strings -> strings.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()))
-                .collect(ArrayList::new, List::addAll, List::addAll);
-        SecurityContextHolder
-                .getContext()
-                .setAuthentication(new UsernamePasswordAuthenticationToken(createAuthenticatedUser(claims, jwt), null, collect));
+        try {
+            ArrayList<SimpleGrantedAuthority> collect = authorities
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .filter(s -> !s.isEmpty())
+                    .map(s -> {
+                        try {
+                            return ERole.valueOf(s).getSplittedRole();
+                        } catch (IllegalArgumentException e) {
+                            log.warn("Rol inválido encontrado en el token: {}", s);
+                            return Collections.<String>emptySet();
+                        }
+                    })
+                    .filter(set -> !set.isEmpty())
+                    .map(strings -> strings.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()))
+                    .collect(ArrayList::new, List::addAll, List::addAll);
+            
+            if (collect.isEmpty()) {
+                log.warn("No se encontraron roles válidos para el usuario: {}", claims.getSubject());
+            }
+            
+            SecurityContextHolder
+                    .getContext()
+                    .setAuthentication(new UsernamePasswordAuthenticationToken(createAuthenticatedUser(claims, jwt), null, collect));
+        } catch (Exception e) {
+            log.error("Error al configurar la autenticación: {}", e.getMessage(), e);
+            throw new RuntimeException("Error al configurar la autenticación", e);
+        }
     }
 
 
@@ -110,6 +151,19 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     .collect(Collectors.toList());
         }
         
+        // Convertir companyId de forma segura (puede venir como Integer o Long)
+        Long companyId = null;
+        Object companyIdClaim = claims.get(_COMPANY_ID_CLAIM);
+        if (companyIdClaim != null) {
+            if (companyIdClaim instanceof Long) {
+                companyId = (Long) companyIdClaim;
+            } else if (companyIdClaim instanceof Integer) {
+                companyId = ((Integer) companyIdClaim).longValue();
+            } else {
+                companyId = Long.parseLong(String.valueOf(companyIdClaim));
+            }
+        }
+        
         return UserLogin
                 .builder()
                 .numberIdentity(claims.getSubject())
@@ -119,7 +173,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 .lastName((String) claims.get(_LAST_NAME_CLAIM))
                 .secondName((String) claims.get(_SECOND_NAME_CLAIM))
                 .secondLastname((String) claims.get(_SECOND_LAST_NAME_CLAIM))
-                .companyId((Long) claims.get(_COMPANY_ID_CLAIM))
+                .companyId(companyId)
                 .companyName((String) claims.get(_COMPANY_NAME_CLAIM))
                 .companyDescription((String) claims.get(_COMPANY_NAME_CLAIM))
                 .roles(roles)

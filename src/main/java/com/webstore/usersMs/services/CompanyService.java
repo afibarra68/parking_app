@@ -16,5 +16,14 @@ public interface CompanyService {
     List<DCompany> getBy(Long companyId, String companyName, String numberIdentity) throws WbException;
 
     Page<DCompany> findByPageable(Long companyId, String companyName, String numberIdentity, Pageable pageable);
+
+    /**
+     * Obtiene la empresa del usuario autenticado.
+     * El companyId se obtiene automáticamente del SecurityContext.
+     * 
+     * @return La empresa del usuario autenticado, null si no tiene empresa asociada
+     * @throws WbException Si el usuario no está autenticado o no tiene empresa
+     */
+    DCompany getCurrentUserCompany() throws WbException;
 }
 

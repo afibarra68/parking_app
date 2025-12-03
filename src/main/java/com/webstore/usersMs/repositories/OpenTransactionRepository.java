@@ -27,5 +27,13 @@ public interface OpenTransactionRepository extends JpaRepository<OpenTransaction
             @Param("status") String status,
             @Param("companyCompanyId") Long companyCompanyId,
             Pageable pageable);
+
+    @Query("SELECT ot FROM OpenTransaction ot " +
+           "WHERE ot.vehiclePlate = :vehiclePlate " +
+           "AND ot.company.companyId = :companyId " +
+           "AND ot.status = 'OPEN'")
+    Optional<OpenTransaction> findByVehiclePlateAndCompanyId(
+            @Param("vehiclePlate") String vehiclePlate,
+            @Param("companyId") Long companyId);
 }
 

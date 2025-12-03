@@ -55,5 +55,10 @@ public class CompanyController {
         return service.findByPageable(companyId, companyName, numberIdentity, pageable);
     }
 
+    @GetMapping("/current")
+    public DCompany getCurrentUserCompany() throws WbException {
+        return service.getCurrentUserCompany();
+    }
+
 }
 

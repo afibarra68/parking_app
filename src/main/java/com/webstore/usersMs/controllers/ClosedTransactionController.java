@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.webstore.usersMs.dtos.DClosedTransaction;
 import com.webstore.usersMs.services.ClosedTransactionService;
@@ -43,6 +44,11 @@ public class ClosedTransactionController {
             @RequestParam(required = false) Long companyCompanyId,
             @PageableDefault(size = 10) Pageable pageable) {
         return service.findBy(status, companyCompanyId, pageable);
+    }
+
+    @PostMapping("/close/{openTransactionId}")
+    public DClosedTransaction closeTransaction(@PathVariable Long openTransactionId) throws WbException {
+        return service.closeTransaction(openTransactionId);
     }
 }
 

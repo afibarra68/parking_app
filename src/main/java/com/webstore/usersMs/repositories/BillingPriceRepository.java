@@ -39,5 +39,15 @@ public interface BillingPriceRepository extends JpaRepository<BillingPrice, Long
             @Param("companyCompanyId") Long companyCompanyId,
             @Param("coverType") String coverType,
             Pageable pageable);
+
+    @Query("SELECT bp FROM BillingPrice bp " +
+           "WHERE bp.company.companyId = :companyId " +
+           "AND bp.status = 'ACTIVE' " +
+           "AND :hours >= bp.start " +
+           "AND :hours <= bp.end " +
+           "ORDER BY bp.start ASC")
+    Optional<BillingPrice> findPriceByHoursAndCompany(
+            @Param("hours") Integer hours,
+            @Param("companyId") Long companyId);
 }
 

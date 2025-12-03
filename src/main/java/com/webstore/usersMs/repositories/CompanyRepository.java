@@ -16,6 +16,9 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
     Optional<Company> findByCompanyId(Long companyId);
 
+    @Query("SELECT c FROM Company c LEFT JOIN FETCH c.country WHERE c.companyId = :companyId")
+    Optional<Company> findByCompanyIdWithCountry(@Param("companyId") Long companyId);
+
     @Query("SELECT c FROM Company c " +
             "WHERE (:companyId IS NULL OR :companyId = c.companyId) " +
             "AND (:companyName IS NULL OR :companyName = '' OR c.companyName LIKE '%' || :companyName || '%') " +

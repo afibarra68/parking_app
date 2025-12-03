@@ -12,5 +12,13 @@ public interface ClosedTransactionService {
     DClosedTransaction update(DClosedTransaction dto) throws WbException;
 
     Page<DClosedTransaction> findBy(String status, Long companyCompanyId, Pageable pageable);
+
+    /**
+     * Cierra una transacción abierta, calcula la tarifa y crea el registro en closed_transaction.
+     * 
+     * @param openTransactionId El ID de la transacción abierta a cerrar
+     * @return La transacción cerrada creada
+     */
+    DClosedTransaction closeTransaction(Long openTransactionId) throws WbException;
 }
 

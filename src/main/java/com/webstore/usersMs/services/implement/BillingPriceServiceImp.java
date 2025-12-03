@@ -13,10 +13,12 @@ import com.webstore.usersMs.entities.Company;
 import com.webstore.usersMs.entities.Discount;
 import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.mappers.BillingPriceMapper;
+import com.webstore.usersMs.model.UserLogin;
 import com.webstore.usersMs.repositories.BillingPriceRepository;
 import com.webstore.usersMs.repositories.CompanyRepository;
 import com.webstore.usersMs.repositories.DiscountRepository;
 import com.webstore.usersMs.services.BillingPriceService;
+import com.webstore.usersMs.services.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +34,7 @@ public class BillingPriceServiceImp implements BillingPriceService {
     private final BillingPriceRepository repository;
     private final CompanyRepository companyRepository;
     private final DiscountRepository discountRepository;
+    private final UserService userService;
 
     private final BillingPriceMapper mapper = Mappers.getMapper(BillingPriceMapper.class);
 
@@ -90,6 +93,33 @@ public class BillingPriceServiceImp implements BillingPriceService {
     @Override
     public Page<DBillingPrice> findByPageable(String status, Long companyCompanyId, String coverType, Pageable pageable) {
         return mapper.toPage(repository.findByPageable(status, companyCompanyId, coverType, pageable));
+    }
+
+    @Override
+    public DBillingPrice calculatePriceByHours(Integer hours) throws WbException {
+        // Obtener el usuario autenticado para obtener el companyId
+        UserLogin authenticatedUser = userService.getAuthenticatedUser();
+        if (authenticatedUser == null) {
+            log.error("Usuario no autenticado al intentar calcular tarifa para {} horas", hours);
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
+        }
+        
+        if (authenticatedUser.getCompanyId() == null) {
+            log.error("Usuario autenticado sin companyId. appUserId: {}", authenticatedUser.getAppUserId());
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
+        }
+
+        Optional<BillingPrice> billingPrice = repository.findPriceByHoursAndCompany(
+            hours,
+            authenticatedUser.getCompanyId()
+        );
+
+        if (billingPrice.isEmpty()) {
+            log.warn("No se encontró tarifa para {} horas y companyId: {}", hours, authenticatedUser.getCompanyId());
+            return null;
+        }
+
+        return mapper.toDto(billingPrice.get());
     }
 }
 
