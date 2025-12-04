@@ -36,8 +36,9 @@ public class BusinessServiceController {
     public List<DBusinessService> getBusinessServices(
             @RequestParam(required = false) Long businessServiceId,
             @RequestParam(required = false) String principalName,
-            @RequestParam(required = false) String code) throws WbException {
-        return service.getBy(businessServiceId, principalName, code);
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String description) throws WbException {
+        return service.getBy(businessServiceId, principalName, code, description);
     }
 
     @GetMapping("/pageable")
@@ -45,8 +46,9 @@ public class BusinessServiceController {
             @RequestParam(required = false) Long businessServiceId,
             @RequestParam(required = false) String principalName,
             @RequestParam(required = false) String code,
+            @RequestParam(required = false) String description,
             @PageableDefault(size = 10) Pageable pageable) {
-        return service.findByPageable(businessServiceId, principalName, code, pageable);
+        return service.findByPageable(businessServiceId, principalName, code, description, pageable);
     }
 }
 

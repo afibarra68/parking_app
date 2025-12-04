@@ -23,7 +23,11 @@ public interface CompanyBusinessServiceRepository extends JpaRepository<CompanyB
             @Param("companyId") Long companyId,
             @Param("businessServiceId") Long businessServiceId);
 
-    List<CompanyBusinessService> findByCompany_CompanyId(Long companyId);
+    @Query("SELECT DISTINCT cbs FROM CompanyBusinessService cbs " +
+           "LEFT JOIN FETCH cbs.businessService " +
+           "LEFT JOIN FETCH cbs.company " +
+           "WHERE cbs.company.companyId = :companyId")
+    List<CompanyBusinessService> findByCompanyId(@Param("companyId") Long companyId);
 
     List<CompanyBusinessService> findByBusinessService_BusinessServiceId(Long businessServiceId);
 

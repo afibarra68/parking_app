@@ -27,7 +27,7 @@ public class DClosedTransaction {
 
     private LocalDate endTime;
 
-    private Double currency;
+    private String currency;
 
     private Long companyCompanyId;
 
@@ -52,5 +52,7 @@ public class DClosedTransaction {
     private String sellerName;
 
     private Long contractor;
+
+    private String countryCurrency;
 }
 

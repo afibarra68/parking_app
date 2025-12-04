@@ -97,7 +97,9 @@ public class CompanyBusinessServiceImp implements CompanyBusinessServiceInterfac
 
     @Override
     public List<DCompanyBusinessService> getByCompanyId(Long companyId) {
-        List<CompanyBusinessService> data = repository.findByCompany_CompanyId(companyId);
+        log.info("Buscando servicios de negocio para la empresa con ID: {}", companyId);
+        List<CompanyBusinessService> data = repository.findByCompanyId(companyId);
+        log.info("Se encontraron {} servicios de negocio para la empresa {}", data.size(), companyId);
         return mapper.toList(data);
     }
 

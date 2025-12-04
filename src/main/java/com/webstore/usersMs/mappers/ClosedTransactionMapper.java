@@ -24,6 +24,7 @@ public interface ClosedTransactionMapper {
     @Mapping(target = "companyCompanyId", source = "company.companyId")
     @Mapping(target = "billingPriceBillingPriceId", source = "billingPrice.billingPriceId")
     @Mapping(target = "sellerAppUserId", source = "sellerAppUser.appUserId")
+    @Mapping(target = "countryCurrency", source = "company.country.currency")
     DClosedTransaction toDto(ClosedTransaction entity);
 
     @Mapping(target = "company", ignore = true)

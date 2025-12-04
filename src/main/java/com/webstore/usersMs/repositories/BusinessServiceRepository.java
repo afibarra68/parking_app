@@ -19,24 +19,29 @@ public interface BusinessServiceRepository extends JpaRepository<BusinessService
     @Query("SELECT bs FROM BusinessService bs " +
             "WHERE (:businessServiceId IS NULL OR :businessServiceId = bs.businessServiceId) " +
             "AND (:principalName IS NULL OR :principalName = '' OR bs.principalName LIKE '%' || :principalName || '%') " +
-            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%')")
+            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%') " +
+            "AND (:description IS NULL OR :description = '' OR bs.description LIKE '%' || :description || '%')")
     List<BusinessService> findBy(
             @Param("businessServiceId") Long businessServiceId,
             @Param("principalName") String principalName,
-            @Param("code") String code);
+            @Param("code") String code,
+            @Param("description") String description);
 
     @Query(value = "SELECT bs FROM BusinessService bs " +
             "WHERE (:businessServiceId IS NULL OR :businessServiceId = bs.businessServiceId) " +
             "AND (:principalName IS NULL OR :principalName = '' OR bs.principalName LIKE '%' || :principalName || '%') " +
-            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%')",
+            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%') " +
+            "AND (:description IS NULL OR :description = '' OR bs.description LIKE '%' || :description || '%')",
             countQuery = "SELECT COUNT(bs) FROM BusinessService bs " +
             "WHERE (:businessServiceId IS NULL OR :businessServiceId = bs.businessServiceId) " +
             "AND (:principalName IS NULL OR :principalName = '' OR bs.principalName LIKE '%' || :principalName || '%') " +
-            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%')")
+            "AND (:code IS NULL OR :code = '' OR bs.code LIKE '%' || :code || '%') " +
+            "AND (:description IS NULL OR :description = '' OR bs.description LIKE '%' || :description || '%')")
     Page<BusinessService> findByPageable(
             @Param("businessServiceId") Long businessServiceId,
             @Param("principalName") String principalName,
             @Param("code") String code,
+            @Param("description") String description,
             Pageable pageable);
 
 }

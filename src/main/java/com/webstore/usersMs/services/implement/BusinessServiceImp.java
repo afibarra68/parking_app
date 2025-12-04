@@ -49,14 +49,14 @@ public class BusinessServiceImp implements BusinessServiceInterface {
     }
 
     @Override
-    public List<DBusinessService> getBy(Long businessServiceId, String principalName, String code) throws WbException {
-        List<BusinessService> data = repository.findBy(businessServiceId, principalName, code);
+    public List<DBusinessService> getBy(Long businessServiceId, String principalName, String code, String description) throws WbException {
+        List<BusinessService> data = repository.findBy(businessServiceId, principalName, code, description);
         return mapper.toList(data);
     }
 
     @Override
-    public Page<DBusinessService> findByPageable(Long businessServiceId, String principalName, String code, Pageable pageable) {
-        return repository.findByPageable(businessServiceId, principalName, code, pageable).map(mapper::toDto);
+    public Page<DBusinessService> findByPageable(Long businessServiceId, String principalName, String code, String description, Pageable pageable) {
+        return repository.findByPageable(businessServiceId, principalName, code, description, pageable).map(mapper::toDto);
     }
 }
 

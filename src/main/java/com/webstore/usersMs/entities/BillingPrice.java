@@ -56,6 +56,10 @@ public class BillingPrice {
     @JoinColumn(name = "company_company_id")
     private Company company;
 
+    @ManyToOne
+    @JoinColumn(name = "business_service_business_service_id")
+    private BusinessService businessService;
+
     @Column(name = "\"start\"")
     private Integer start;
 

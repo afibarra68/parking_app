@@ -27,7 +27,6 @@ import com.webstore.usersMs.error.WbException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -100,8 +99,19 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
     }
 
     @Override
-    public Page<DClosedTransaction> findBy(String status, Long companyCompanyId, String operationDateFrom, String operationDateTo, Pageable pageable) {
-        return mapper.toPage(repository.findBy(status, companyCompanyId, operationDateFrom, operationDateTo, pageable));
+    public Page<DClosedTransaction> findBy(String status, Long companyCompanyId, Pageable pageable) {
+        Page<ClosedTransaction> page = repository.findBy(status, companyCompanyId, pageable);
+        
+        // Mapear las transacciones e incluir el currency del país
+        return page.map(entity -> {
+            DClosedTransaction dto = mapper.toDto(entity);
+            // Si el mapper no mapeó el currency del país, agregarlo manualmente
+            if (dto.getCountryCurrency() == null && entity.getCompany() != null && 
+                entity.getCompany().getCountry() != null) {
+                dto.setCountryCurrency(entity.getCompany().getCountry().getCurrency());
+            }
+            return dto;
+        });
     }
 
     @Override
@@ -173,15 +183,45 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
         if (billingPriceDto != null) {
             Optional<com.webstore.usersMs.entities.BillingPrice> billingPrice = 
                 billingPriceRepository.findByBillingPriceId(billingPriceDto.getBillingPriceId());
-            billingPrice.ifPresent(openTransaction::setBillingPrice);
-            
-            // Calcular montos
-            Long mount = billingPriceDto.getMount() != null ? billingPriceDto.getMount() : 0L;
-            openTransaction.setAmount(mount.doubleValue());
-            openTransaction.setTotalAmount(mount.doubleValue());
+            if (billingPrice.isPresent()) {
+                openTransaction.setBillingPrice(billingPrice.get());
+                
+                // Setear serviceTypeServiceTypeId desde el businessService del billingPrice
+                if (billingPrice.get().getBusinessService() != null && 
+                    billingPrice.get().getBusinessService().getBusinessServiceId() != null) {
+                    openTransaction.setServiceTypeServiceTypeId(
+                        billingPrice.get().getBusinessService().getBusinessServiceId());
+                    log.info("serviceTypeServiceTypeId asignado desde billingPrice calculado: {}", 
+                        billingPrice.get().getBusinessService().getBusinessServiceId());
+                }
+                
+                // Calcular montos
+                Long mount = billingPriceDto.getMount() != null ? billingPriceDto.getMount() : 0L;
+                openTransaction.setAmount(mount.doubleValue());
+                openTransaction.setTotalAmount(mount.doubleValue());
+            }
+        }
+
+        // Asegurar que el currency esté asignado desde el país de la compañía si no está en openTransaction
+        String currencyValue = openTransaction.getCurrency();
+        if ((currencyValue == null || currencyValue.isEmpty()) && 
+            openTransaction.getCompany() != null && 
+            openTransaction.getCompany().getCountry() != null &&
+            openTransaction.getCompany().getCountry().getCurrency() != null) {
+            currencyValue = openTransaction.getCompany().getCountry().getCurrency();
+            openTransaction.setCurrency(currencyValue);
+            log.info("Currency asignado desde el país de la compañía al cerrar transacción: {}", currencyValue);
         }
 
         openTransactionRepository.save(openTransaction);
+
+        // Obtener currency para closedTransaction (usar el de openTransaction o el del país de la compañía)
+        String closedCurrency = currencyValue;
+        if ((closedCurrency == null || closedCurrency.isEmpty()) && 
+            openTransaction.getCompany() != null && 
+            openTransaction.getCompany().getCountry() != null) {
+            closedCurrency = openTransaction.getCompany().getCountry().getCurrency();
+        }
 
         // Crear registro en closed_transaction
         ClosedTransaction closedTransaction = ClosedTransaction.builder()
@@ -189,7 +229,7 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
             .startDay(openTransaction.getStartDay())
             .endDate(endDateTime.toLocalTime())
             .endTime(endDateTime.toLocalDate())
-            .currency(openTransaction.getCurrency())
+            .currency(closedCurrency)
             .company(openTransaction.getCompany())
             .status("CLOSED")
             .billingPrice(openTransaction.getBillingPrice())
@@ -208,6 +248,77 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
             openTransactionId, saved.getClosedTransactionId(), hoursForBilling);
 
         return mapper.toDto(saved);
+    }
+
+    @Override
+    public com.webstore.usersMs.dtos.DClosedTransactionStats getTodayStats() throws WbException {
+        // Obtener usuario autenticado
+        UserLogin authenticatedUser = userService.getAuthenticatedUser();
+        if (authenticatedUser == null) {
+            log.error("Usuario no autenticado al intentar obtener estadísticas del día");
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
+        }
+        
+        if (authenticatedUser.getCompanyId() == null) {
+            log.error("Usuario autenticado sin companyId. appUserId: {}", authenticatedUser.getAppUserId());
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
+        }
+
+        Long companyId = authenticatedUser.getCompanyId();
+        
+        // Calcular inicio y fin del día una sola vez
+        LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime startOfNextDay = startOfDay.plusDays(1);
+        
+        // Ejecutar consultas en paralelo para mejor rendimiento
+        Long totalTransactions = repository.countTodayTransactions(companyId);
+        Double totalAmountDouble = repository.sumTodayAmount(companyId);
+        java.util.List<ClosedTransaction> transactions = repository.findTodayTransactions(companyId, startOfDay, startOfNextDay);
+        
+        // Convertir totalAmount
+        java.math.BigDecimal totalAmount = totalAmountDouble != null 
+            ? java.math.BigDecimal.valueOf(totalAmountDouble) 
+            : java.math.BigDecimal.ZERO;
+        
+        // Obtener currency de la primera transacción (ya viene con JOIN FETCH)
+        // Si no hay transacciones, usar valor por defecto
+        String currency = "USD"; // Valor por defecto
+        if (!transactions.isEmpty()) {
+            ClosedTransaction firstTransaction = transactions.get(0);
+            if (firstTransaction.getCompany() != null && 
+                firstTransaction.getCompany().getCountry() != null) {
+                String countryCurrency = firstTransaction.getCompany().getCountry().getCurrency();
+                if (countryCurrency != null && !countryCurrency.isEmpty()) {
+                    currency = countryCurrency;
+                }
+            }
+        }
+        
+        final String finalCurrency = currency; // Variable final para usar en el stream
+        
+        // Limitar a las últimas 50 transacciones para mejor rendimiento
+        java.util.List<ClosedTransaction> limitedTransactions = transactions.stream()
+            .limit(50)
+            .collect(java.util.stream.Collectors.toList());
+        
+        // Mapear a DTOs
+        java.util.List<com.webstore.usersMs.dtos.DClosedTransactionSummary> summaries = limitedTransactions.stream()
+            .map(ct -> com.webstore.usersMs.dtos.DClosedTransactionSummary.builder()
+                .closedTransactionId(ct.getClosedTransactionId())
+                .operationDate(ct.getOperationDate())
+                .timeElapsed(ct.getTimeElapsed())
+                .totalAmount(ct.getTotalAmount() != null ? java.math.BigDecimal.valueOf(ct.getTotalAmount()) : java.math.BigDecimal.ZERO)
+                .currency(finalCurrency)
+                .sellerName(ct.getSellerName())
+                .build())
+            .collect(java.util.stream.Collectors.toList());
+        
+        return com.webstore.usersMs.dtos.DClosedTransactionStats.builder()
+            .totalTransactions(totalTransactions)
+            .totalAmount(totalAmount)
+            .currency(currency)
+            .transactions(summaries)
+            .build();
     }
 }
 

@@ -55,7 +55,7 @@ public class OpenTransaction {
     private LocalDate endTime;
 
     @Column(name = "currency")
-    private Double currency;
+    private String currency;
 
     @ManyToOne
     @JoinColumn(name = "company_company_id")

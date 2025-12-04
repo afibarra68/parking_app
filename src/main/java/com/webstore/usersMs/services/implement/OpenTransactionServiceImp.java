@@ -69,21 +69,12 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         if (dto.getCurrency() == null && companyEntity != null && companyEntity.getCountry() != null) {
             String countryCurrency = companyEntity.getCountry().getCurrency();
             if (countryCurrency != null && !countryCurrency.isEmpty()) {
-                try {
-                    // Intentar parsear el currency como Double primero
-                    Double currencyValue = Double.parseDouble(countryCurrency);
-                    entity.setCurrency(currencyValue);
-                    log.info("Currency asignado automáticamente desde la empresa: {} (valor: {})", countryCurrency, currencyValue);
-                } catch (NumberFormatException e) {
-                    // Si no es un número, usar el código de moneda como valor hash
-                    // Esto permite identificar la moneda aunque sea un código (USD, EUR, etc.)
-                    Double currencyValue = (double) countryCurrency.hashCode();
-                    entity.setCurrency(currencyValue);
-                    log.info("Currency (código) asignado automáticamente desde la empresa: {} (valor hash: {})", countryCurrency, currencyValue);
-                } catch (Exception e) {
-                    log.warn("No se pudo asignar el currency de la empresa: {}", countryCurrency, e);
-                }
+                entity.setCurrency(countryCurrency);
+                log.info("Currency asignado automáticamente desde la empresa: {}", countryCurrency);
             }
+        } else if (dto.getCurrency() != null) {
+            // Si viene en el DTO, usar el del DTO
+            entity.setCurrency(dto.getCurrency());
         }
         
         // Asignar el usuario vendedor desde la sesión si no viene en el DTO
@@ -97,6 +88,21 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
             // Si viene en el DTO, usar la del DTO
             Optional<User> user = userRepository.findByAppUserId(dto.getAppUserAppUserSeller());
             user.ifPresent(entity::setAppUserSeller);
+        }
+        
+        // Si viene billingPriceBillingPriceId, cargar el billingPrice y setear el serviceTypeServiceTypeId
+        if (dto.getBillingPriceBillingPriceId() != null) {
+            Optional<BillingPrice> billingPrice = billingPriceRepository.findByBillingPriceId(dto.getBillingPriceBillingPriceId());
+            if (billingPrice.isPresent()) {
+                entity.setBillingPrice(billingPrice.get());
+                // Setear serviceTypeServiceTypeId desde el businessService del billingPrice
+                if (billingPrice.get().getBusinessService() != null && 
+                    billingPrice.get().getBusinessService().getBusinessServiceId() != null) {
+                    entity.setServiceTypeServiceTypeId(billingPrice.get().getBusinessService().getBusinessServiceId());
+                    log.info("serviceTypeServiceTypeId asignado desde billingPrice: {}", 
+                        billingPrice.get().getBusinessService().getBusinessServiceId());
+                }
+            }
         }
         
         // El backend agrega automáticamente la fecha y hora de inicio
@@ -131,7 +137,16 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         
         if (dto.getBillingPriceBillingPriceId() != null) {
             Optional<BillingPrice> billingPrice = billingPriceRepository.findByBillingPriceId(dto.getBillingPriceBillingPriceId());
-            billingPrice.ifPresent(merged::setBillingPrice);
+            if (billingPrice.isPresent()) {
+                merged.setBillingPrice(billingPrice.get());
+                // Setear serviceTypeServiceTypeId desde el businessService del billingPrice
+                if (billingPrice.get().getBusinessService() != null && 
+                    billingPrice.get().getBusinessService().getBusinessServiceId() != null) {
+                    merged.setServiceTypeServiceTypeId(billingPrice.get().getBusinessService().getBusinessServiceId());
+                    log.info("serviceTypeServiceTypeId actualizado desde billingPrice: {}", 
+                        billingPrice.get().getBusinessService().getBusinessServiceId());
+                }
+            }
         }
         
         if (dto.getAppUserAppUserSeller() != null) {

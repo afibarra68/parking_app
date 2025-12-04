@@ -27,7 +27,7 @@ public class DOpenTransaction {
 
     private LocalDate endTime;
 
-    private Double currency;
+    private String currency;
 
     private Long companyCompanyId;
 

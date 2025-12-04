@@ -15,9 +15,13 @@ import java.util.Optional;
 @Repository
 public interface BillingPriceRepository extends JpaRepository<BillingPrice, Long> {
 
-    Optional<BillingPrice> findByBillingPriceId(Long billingPriceId);
-
     @Query("SELECT bp FROM BillingPrice bp " +
+           "LEFT JOIN FETCH bp.businessService " +
+           "WHERE bp.billingPriceId = :billingPriceId")
+    Optional<BillingPrice> findByBillingPriceId(@Param("billingPriceId") Long billingPriceId);
+
+    @Query("SELECT DISTINCT bp FROM BillingPrice bp " +
+           "LEFT JOIN FETCH bp.businessService " +
             "WHERE (:status IS NULL OR :status = '' OR bp.status LIKE '%' || :status || '%') " +
             "AND (:companyCompanyId IS NULL OR bp.company.companyId = :companyCompanyId) " +
             "AND (:tipoVehiculo IS NULL OR :tipoVehiculo = '' OR bp.tipoVehiculo LIKE '%' || :tipoVehiculo || '%')")
@@ -26,11 +30,12 @@ public interface BillingPriceRepository extends JpaRepository<BillingPrice, Long
             @Param("companyCompanyId") Long companyCompanyId,
             @Param("tipoVehiculo") String tipoVehiculo);
 
-    @Query(value = "SELECT bp FROM BillingPrice bp " +
+    @Query(value = "SELECT DISTINCT bp FROM BillingPrice bp " +
+           "LEFT JOIN FETCH bp.businessService " +
             "WHERE (:status IS NULL OR :status = '' OR bp.status LIKE '%' || :status || '%') " +
             "AND (:companyCompanyId IS NULL OR bp.company.companyId = :companyCompanyId) " +
             "AND (:tipoVehiculo IS NULL OR :tipoVehiculo = '' OR bp.tipoVehiculo LIKE '%' || :tipoVehiculo || '%')",
-            countQuery = "SELECT COUNT(bp) FROM BillingPrice bp " +
+            countQuery = "SELECT COUNT(DISTINCT bp) FROM BillingPrice bp " +
             "WHERE (:status IS NULL OR :status = '' OR bp.status LIKE '%' || :status || '%') " +
             "AND (:companyCompanyId IS NULL OR bp.company.companyId = :companyCompanyId) " +
             "AND (:tipoVehiculo IS NULL OR :tipoVehiculo = '' OR bp.tipoVehiculo LIKE '%' || :tipoVehiculo || '%')")
@@ -51,6 +56,7 @@ public interface BillingPriceRepository extends JpaRepository<BillingPrice, Long
             @Param("companyId") Long companyId);
 
     @Query("SELECT bp FROM BillingPrice bp " +
+           "LEFT JOIN FETCH bp.businessService " +
            "WHERE bp.company.companyId = :companyId " +
            "AND bp.status = 'ACTIVE' " +
            "AND bp.tipoVehiculo = :tipoVehiculo " +

@@ -30,6 +30,8 @@ public class DBillingPrice {
 
     private Long companyCompanyId;
 
+    private Long businessServiceBusinessServiceId;
+
     private Integer start;
 
     private Integer end;

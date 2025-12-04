@@ -14,12 +14,14 @@ import com.webstore.usersMs.dtos.DBillingPrice;
 import com.webstore.usersMs.entities.BillingPrice;
 import com.webstore.usersMs.entities.Company;
 import com.webstore.usersMs.entities.Discount;
+import com.webstore.usersMs.entities.BusinessService;
 import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.mappers.BillingPriceMapper;
 import com.webstore.usersMs.model.UserLogin;
 import com.webstore.usersMs.repositories.BillingPriceRepository;
 import com.webstore.usersMs.repositories.CompanyRepository;
 import com.webstore.usersMs.repositories.DiscountRepository;
+import com.webstore.usersMs.repositories.BusinessServiceRepository;
 import com.webstore.usersMs.services.BillingPriceService;
 import com.webstore.usersMs.services.UserService;
 
@@ -37,6 +39,7 @@ public class BillingPriceServiceImp implements BillingPriceService {
     private final BillingPriceRepository repository;
     private final CompanyRepository companyRepository;
     private final DiscountRepository discountRepository;
+    private final BusinessServiceRepository businessServiceRepository;
     private final UserService userService;
 
     private final BillingPriceMapper mapper = Mappers.getMapper(BillingPriceMapper.class);
@@ -57,6 +60,11 @@ public class BillingPriceServiceImp implements BillingPriceService {
         if (dto.getDiscountDiscountId() != null) {
             Optional<Discount> discount = discountRepository.findByDiscountId(dto.getDiscountDiscountId());
             discount.ifPresent(entity::setDiscount);
+        }
+
+        if (dto.getBusinessServiceBusinessServiceId() != null) {
+            Optional<BusinessService> businessService = businessServiceRepository.findByBusinessServiceId(dto.getBusinessServiceBusinessServiceId());
+            businessService.ifPresent(entity::setBusinessService);
         }
 
         return mapper.toDto(repository.save(entity));
@@ -88,6 +96,13 @@ public class BillingPriceServiceImp implements BillingPriceService {
             discount.ifPresent(merged::setDiscount);
         } else {
             merged.setDiscount(null);
+        }
+
+        if (dto.getBusinessServiceBusinessServiceId() != null) {
+            Optional<BusinessService> businessService = businessServiceRepository.findByBusinessServiceId(dto.getBusinessServiceBusinessServiceId());
+            businessService.ifPresent(merged::setBusinessService);
+        } else {
+            merged.setBusinessService(null);
         }
 
         return mapper.toDto(repository.save(merged));

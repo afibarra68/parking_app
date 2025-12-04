@@ -11,7 +11,7 @@ public interface ClosedTransactionService {
 
     DClosedTransaction update(DClosedTransaction dto) throws WbException;
 
-    Page<DClosedTransaction> findBy(String status, Long companyCompanyId, String operationDateFrom, String operationDateTo, Pageable pageable);
+    Page<DClosedTransaction> findBy(String status, Long companyCompanyId, Pageable pageable);
 
     /**
      * Cierra una transacción abierta, calcula la tarifa y crea el registro en closed_transaction.
@@ -20,5 +20,12 @@ public interface ClosedTransactionService {
      * @return La transacción cerrada creada
      */
     DClosedTransaction closeTransaction(Long openTransactionId) throws WbException;
+
+    /**
+     * Obtiene las estadísticas de transacciones cerradas del día actual para la compañía del usuario autenticado.
+     * 
+     * @return Estadísticas con total de transacciones, monto total y lista de transacciones (sin placa)
+     */
+    com.webstore.usersMs.dtos.DClosedTransactionStats getTodayStats() throws WbException;
 }
 

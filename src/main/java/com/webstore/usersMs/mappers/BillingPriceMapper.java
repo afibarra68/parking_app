@@ -18,14 +18,17 @@ public interface BillingPriceMapper {
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "discount", ignore = true)
+    @Mapping(target = "businessService", ignore = true)
     BillingPrice fromDto(DBillingPrice dto);
 
     @Mapping(target = "companyCompanyId", source = "company.companyId")
     @Mapping(target = "discountDiscountId", source = "discount.discountId")
+    @Mapping(target = "businessServiceBusinessServiceId", source = "businessService.businessServiceId")
     DBillingPrice toDto(BillingPrice entity);
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "discount", ignore = true)
+    @Mapping(target = "businessService", ignore = true)
     BillingPrice merge(DBillingPrice dto, @MappingTarget BillingPrice billingPrice);
 
     default List<DBillingPrice> toList(List<BillingPrice> list) {

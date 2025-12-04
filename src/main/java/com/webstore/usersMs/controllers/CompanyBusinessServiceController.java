@@ -39,7 +39,10 @@ public class CompanyBusinessServiceController {
 
     @GetMapping("/by-company/{companyId}")
     public List<DCompanyBusinessService> getByCompanyId(@PathVariable Long companyId) {
-        return service.getByCompanyId(companyId);
+        log.info("Recibida petición para obtener servicios de negocio de la empresa: {}", companyId);
+        List<DCompanyBusinessService> result = service.getByCompanyId(companyId);
+        log.info("Retornando {} servicios de negocio para la empresa {}", result.size(), companyId);
+        return result;
     }
 
     @DeleteMapping("/{companyBusinessServiceId}")

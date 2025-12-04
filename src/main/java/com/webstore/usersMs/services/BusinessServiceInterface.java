@@ -13,9 +13,9 @@ public interface BusinessServiceInterface {
 
     DBusinessService update(DBusinessService businessService) throws WbException;
 
-    List<DBusinessService> getBy(Long businessServiceId, String principalName, String code) throws WbException;
+    List<DBusinessService> getBy(Long businessServiceId, String principalName, String code, String description) throws WbException;
 
-    Page<DBusinessService> findByPageable(Long businessServiceId, String principalName, String code, Pageable pageable);
+    Page<DBusinessService> findByPageable(Long businessServiceId, String principalName, String code, String description, Pageable pageable);
 
 }
 
