@@ -64,5 +64,8 @@ public class BillingPrice {
 
     @Column(name = "mount")
     private Long mount;
+
+    @Column(name = "vehicule_type")
+    private String tipoVehiculo;
 }
 

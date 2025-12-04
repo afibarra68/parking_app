@@ -100,8 +100,8 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
     }
 
     @Override
-    public Page<DClosedTransaction> findBy(String status, Long companyCompanyId, Pageable pageable) {
-        return mapper.toPage(repository.findBy(status, companyCompanyId, pageable));
+    public Page<DClosedTransaction> findBy(String status, Long companyCompanyId, String operationDateFrom, String operationDateTo, Pageable pageable) {
+        return mapper.toPage(repository.findBy(status, companyCompanyId, operationDateFrom, operationDateTo, pageable));
     }
 
     @Override
@@ -131,7 +131,7 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
             throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
         }
 
-        // Calcular tiempo transcurrido
+        // Calcular tiempo transcurrido usando día y hora de ingreso
         LocalDateTime startDateTime = LocalDateTime.of(openTransaction.getStartDay(), openTransaction.getStartTime());
         LocalDateTime endDateTime = LocalDateTime.now();
         Duration duration = Duration.between(startDateTime, endDateTime);
@@ -145,8 +145,24 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
             hoursForBilling = 1; // Mínimo 1 hora
         }
 
-        // Buscar tarifa según horas y companyId
-        com.webstore.usersMs.dtos.DBillingPrice billingPriceDto = billingPriceService.calculatePriceByHours(hoursForBilling);
+        // Obtener tipo de vehículo como String
+        String tipoVehiculoStr = null;
+        if (openTransaction.getTipoVehiculo() != null) {
+            tipoVehiculoStr = openTransaction.getTipoVehiculo().name();
+        }
+
+        // Validar que exista tipo de vehículo
+        if (tipoVehiculoStr == null || tipoVehiculoStr.trim().isEmpty()) {
+            log.error("Tipo de vehículo no encontrado en transacción abierta: {}", openTransactionId);
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.BILLING_PRICE_NOT_FOUND);
+        }
+
+        // Buscar tarifa según horas, tipo de vehículo y companyId
+        // El servicio valida que el tiempo no exceda el rango máximo
+        com.webstore.usersMs.dtos.DBillingPrice billingPriceDto = billingPriceService.calculatePriceByHours(
+            hoursForBilling, 
+            tipoVehiculoStr
+        );
         
         // Actualizar transacción abierta a estado CLOSED
         openTransaction.setStatus("CLOSED");

@@ -42,8 +42,10 @@ public class ClosedTransactionController {
     public Page<DClosedTransaction> getClosedTransactions(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long companyCompanyId,
+            @RequestParam(required = false) String operationDateFrom,
+            @RequestParam(required = false) String operationDateTo,
             @PageableDefault(size = 10) Pageable pageable) {
-        return service.findBy(status, companyCompanyId, pageable);
+        return service.findBy(status, companyCompanyId, operationDateFrom, operationDateTo, pageable);
     }
 
     @PostMapping("/close/{openTransactionId}")

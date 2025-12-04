@@ -42,17 +42,17 @@ public class BillingPriceController {
     public List<DBillingPrice> getBillingPrices(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long companyCompanyId,
-            @RequestParam(required = false) String coverType) throws WbException {
-        return service.getBy(status, companyCompanyId, coverType);
+            @RequestParam(required = false) String tipoVehiculo) throws WbException {
+        return service.getBy(status, companyCompanyId, tipoVehiculo);
     }
 
     @GetMapping("/pageable")
     public Page<DBillingPrice> getBillingPricesPageable(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long companyCompanyId,
-            @RequestParam(required = false) String coverType,
+            @RequestParam(required = false) String tipoVehiculo,
             @PageableDefault(size = 10) Pageable pageable) {
-        return service.findByPageable(status, companyCompanyId, coverType, pageable);
+        return service.findByPageable(status, companyCompanyId, tipoVehiculo, pageable);
     }
 }
 

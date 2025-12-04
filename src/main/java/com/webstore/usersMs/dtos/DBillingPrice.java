@@ -35,5 +35,7 @@ public class DBillingPrice {
     private Integer end;
 
     private Long mount;
+
+    private String tipoVehiculo;
 }
 

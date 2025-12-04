@@ -11,7 +11,7 @@ public interface ClosedTransactionService {
 
     DClosedTransaction update(DClosedTransaction dto) throws WbException;
 
-    Page<DClosedTransaction> findBy(String status, Long companyCompanyId, Pageable pageable);
+    Page<DClosedTransaction> findBy(String status, Long companyCompanyId, String operationDateFrom, String operationDateTo, Pageable pageable);
 
     /**
      * Cierra una transacción abierta, calcula la tarifa y crea el registro en closed_transaction.

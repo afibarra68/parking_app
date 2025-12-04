@@ -49,7 +49,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     public static final String _AUTHORITIES = "AUTHORITIES";
 
-
     public JwtRequestFilter(JwtUtil util) {
         this.util = util;
     }

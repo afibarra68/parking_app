@@ -1,6 +1,9 @@
 package com.webstore.usersMs.services.implement;
 
 import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.CLIENT_NOT_FOUND;
+import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.BILLING_PRICE_RANGE_OVERLAP;
+import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.BILLING_PRICE_TIME_EXCEEDED;
+import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.BILLING_PRICE_NOT_FOUND;
 
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
@@ -40,6 +43,9 @@ public class BillingPriceServiceImp implements BillingPriceService {
 
     @Override
     public DBillingPrice create(DBillingPrice dto) throws WbException {
+        // Validar que no se crucen los rangos para el mismo tipo de vehículo
+        validateRangeOverlap(dto, null);
+        
         BillingPrice entity = mapper.fromDto(dto);
 
         // Set relationships if IDs are provided
@@ -63,6 +69,9 @@ public class BillingPriceServiceImp implements BillingPriceService {
             throw new WbException(CLIENT_NOT_FOUND);
         }
 
+        // Validar que no se crucen los rangos para el mismo tipo de vehículo
+        validateRangeOverlap(dto, dto.getBillingPriceId());
+
         BillingPrice dbBillingPrice = entity.get();
         BillingPrice merged = mapper.merge(dto, dbBillingPrice);
 
@@ -84,19 +93,59 @@ public class BillingPriceServiceImp implements BillingPriceService {
         return mapper.toDto(repository.save(merged));
     }
 
+    /**
+     * Valida que no existan rangos solapados para el mismo tipo de vehículo y empresa.
+     * Dos rangos se solapan si:
+     * - El inicio del nuevo rango está dentro de un rango existente
+     * - El fin del nuevo rango está dentro de un rango existente
+     * - Un rango existente está completamente dentro del nuevo rango
+     * - El nuevo rango está completamente dentro de un rango existente
+     */
+    private void validateRangeOverlap(DBillingPrice dto, Long excludeBillingPriceId) throws WbException {
+        // Solo validar si se proporcionan los campos necesarios
+        if (dto.getCompanyCompanyId() == null || 
+            dto.getTipoVehiculo() == null || 
+            dto.getStart() == null || 
+            dto.getEnd() == null) {
+            return; // No validar si faltan datos requeridos
+        }
+
+        // Validar que start <= end
+        if (dto.getStart() > dto.getEnd()) {
+            throw new WbException(BILLING_PRICE_RANGE_OVERLAP);
+        }
+
+        // Buscar rangos solapados
+        List<BillingPrice> overlappingRanges = repository.findOverlappingRanges(
+            dto.getCompanyCompanyId(),
+            dto.getTipoVehiculo(),
+            dto.getStart(),
+            dto.getEnd(),
+            excludeBillingPriceId
+        );
+
+        if (!overlappingRanges.isEmpty()) {
+            log.warn("Intento de crear/actualizar precio con rango solapado. " +
+                    "CompanyId: {}, TipoVehiculo: {}, Rango: {}-{}, ExcluirId: {}",
+                    dto.getCompanyCompanyId(), dto.getTipoVehiculo(), 
+                    dto.getStart(), dto.getEnd(), excludeBillingPriceId);
+            throw new WbException(BILLING_PRICE_RANGE_OVERLAP);
+        }
+    }
+
     @Override
-    public List<DBillingPrice> getBy(String status, Long companyCompanyId, String coverType) throws WbException {
-        List<BillingPrice> data = repository.findBy(status, companyCompanyId, coverType);
+    public List<DBillingPrice> getBy(String status, Long companyCompanyId, String tipoVehiculo) throws WbException {
+        List<BillingPrice> data = repository.findBy(status, companyCompanyId, tipoVehiculo);
         return mapper.toList(data);
     }
 
     @Override
-    public Page<DBillingPrice> findByPageable(String status, Long companyCompanyId, String coverType, Pageable pageable) {
-        return mapper.toPage(repository.findByPageable(status, companyCompanyId, coverType, pageable));
+    public Page<DBillingPrice> findByPageable(String status, Long companyCompanyId, String tipoVehiculo, Pageable pageable) {
+        return mapper.toPage(repository.findByPageable(status, companyCompanyId, tipoVehiculo, pageable));
     }
 
     @Override
-    public DBillingPrice calculatePriceByHours(Integer hours) throws WbException {
+    public DBillingPrice calculatePriceByHours(Integer hours, String tipoVehiculo) throws WbException {
         // Obtener el usuario autenticado para obtener el companyId
         UserLogin authenticatedUser = userService.getAuthenticatedUser();
         if (authenticatedUser == null) {
@@ -109,14 +158,43 @@ public class BillingPriceServiceImp implements BillingPriceService {
             throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
         }
 
-        Optional<BillingPrice> billingPrice = repository.findPriceByHoursAndCompany(
+        // Validar que el tipo de vehículo esté presente
+        if (tipoVehiculo == null || tipoVehiculo.trim().isEmpty()) {
+            log.error("Tipo de vehículo no proporcionado al calcular tarifa");
+            throw new WbException(BILLING_PRICE_NOT_FOUND);
+        }
+
+        // Buscar el rango máximo configurado para este tipo de vehículo
+        Integer maxEnd = repository.findMaxEndByCompanyAndTipoVehiculo(
+            authenticatedUser.getCompanyId(),
+            tipoVehiculo
+        );
+
+        // Validar que exista al menos un rango configurado
+        if (maxEnd == null) {
+            log.warn("No se encontró tarifa configurada para tipoVehiculo: {} y companyId: {}", 
+                tipoVehiculo, authenticatedUser.getCompanyId());
+            throw new WbException(BILLING_PRICE_NOT_FOUND);
+        }
+
+        // Validar que el tiempo no exceda el rango máximo
+        if (hours > maxEnd) {
+            log.warn("Tiempo excedido: {} horas excede el rango máximo {} para tipoVehiculo: {} y companyId: {}", 
+                hours, maxEnd, tipoVehiculo, authenticatedUser.getCompanyId());
+            throw new WbException(BILLING_PRICE_TIME_EXCEEDED);
+        }
+
+        // Buscar tarifa según horas, companyId y tipo de vehículo
+        Optional<BillingPrice> billingPrice = repository.findPriceByHoursCompanyAndTipoVehiculo(
             hours,
-            authenticatedUser.getCompanyId()
+            authenticatedUser.getCompanyId(),
+            tipoVehiculo
         );
 
         if (billingPrice.isEmpty()) {
-            log.warn("No se encontró tarifa para {} horas y companyId: {}", hours, authenticatedUser.getCompanyId());
-            return null;
+            log.warn("No se encontró tarifa para {} horas, tipoVehiculo: {} y companyId: {}", 
+                hours, tipoVehiculo, authenticatedUser.getCompanyId());
+            throw new WbException(BILLING_PRICE_NOT_FOUND);
         }
 
         return mapper.toDto(billingPrice.get());
