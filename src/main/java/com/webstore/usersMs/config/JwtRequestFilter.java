@@ -57,6 +57,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            // Permitir que /auth/validate valide el token manualmente
+            String requestPath = request.getRequestURI();
+            if (requestPath != null && requestPath.contains("/auth/validate")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            
             if (util.existsAuthJWT(request, response)) {
                 Pair<Claims, String> pair = util.validateToken(request);
 

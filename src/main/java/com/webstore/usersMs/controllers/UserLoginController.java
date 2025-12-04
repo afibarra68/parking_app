@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.webstore.usersMs.dtos.DUserLogin;
 import com.webstore.usersMs.dtos.DUserLoginResponse;
+import com.webstore.usersMs.dtos.DTokenValidationResponse;
 import com.webstore.usersMs.services.UserService;
 import com.webstore.usersMs.error.WbException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @Validated
@@ -34,7 +38,16 @@ public class UserLoginController {
         return service.login(rUserLoginRequest, httpResponse);
     }
 
-
-
+    @GetMapping("/validate")
+    public DTokenValidationResponse validateToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        String token = null;
+        
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            token = bearerToken.substring(7);
+        }
+        
+        return service.validateToken(token);
+    }
 
 }

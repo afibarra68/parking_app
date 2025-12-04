@@ -5,6 +5,7 @@ import com.webstore.usersMs.dtos.DUserCreated;
 import com.webstore.usersMs.dtos.DUserList;
 import com.webstore.usersMs.dtos.DUserLogin;
 import com.webstore.usersMs.dtos.DUserLoginResponse;
+import com.webstore.usersMs.dtos.DTokenValidationResponse;
 import com.webstore.usersMs.error.WbException;
 import com.webstore.usersMs.model.UserLogin;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,4 +34,13 @@ public interface UserService {
      * @return El UserLogin si está autenticado, null en caso contrario
      */
     UserLogin getAuthenticatedUser();
+
+    /**
+     * Valida un token JWT desde el header de la petición.
+     * Este método valida el token manualmente sin depender del SecurityContext.
+     * 
+     * @param token El token JWT a validar
+     * @return DTokenValidationResponse con el resultado de la validación
+     */
+    DTokenValidationResponse validateToken(String token);
 }

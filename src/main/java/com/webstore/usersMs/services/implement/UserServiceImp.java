@@ -13,6 +13,7 @@ import com.webstore.usersMs.dtos.DUserCreated;
 import com.webstore.usersMs.dtos.DUserList;
 import com.webstore.usersMs.dtos.DUserLogin;
 import com.webstore.usersMs.dtos.DUserLoginResponse;
+import com.webstore.usersMs.dtos.DTokenValidationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.webstore.usersMs.entities.User;
@@ -180,5 +181,57 @@ public class UserServiceImp implements UserService {
         
         log.warn("No se encontró usuario autenticado en el SecurityContext. El token puede no haber sido procesado correctamente.");
         return null;
+    }
+
+    @Override
+    public DTokenValidationResponse validateToken(String token) {
+        try {
+            if (token == null || token.isEmpty()) {
+                return DTokenValidationResponse.builder()
+                    .valid(false)
+                    .message("Token no proporcionado")
+                    .build();
+            }
+            
+            // Validar el token usando JwtUtil
+            try {
+                Pair<io.jsonwebtoken.Claims, String> pair = serviceJWT.validateTokenFromString(token);
+                
+                // Verificar que el token no haya expirado
+                io.jsonwebtoken.Claims claims = pair.getLeft();
+                if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
+                    log.warn("Token expirado para usuario: {}", claims.getSubject());
+                    return DTokenValidationResponse.builder()
+                        .valid(false)
+                        .message("Token expirado")
+                        .build();
+                }
+                
+                return DTokenValidationResponse.builder()
+                    .valid(true)
+                    .message("Token válido")
+                    .build();
+                    
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                log.warn("Token expirado: {}", e.getMessage());
+                return DTokenValidationResponse.builder()
+                    .valid(false)
+                    .message("Token expirado")
+                    .build();
+            } catch (io.jsonwebtoken.JwtException e) {
+                log.warn("Token inválido: {}", e.getMessage());
+                return DTokenValidationResponse.builder()
+                    .valid(false)
+                    .message("Token inválido: " + e.getMessage())
+                    .build();
+            }
+                
+        } catch (Exception e) {
+            log.error("Error al validar token: {}", e.getMessage(), e);
+            return DTokenValidationResponse.builder()
+                .valid(false)
+                .message("Error al validar token: " + e.getMessage())
+                .build();
+        }
     }
 }

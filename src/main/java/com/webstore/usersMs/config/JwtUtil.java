@@ -136,4 +136,24 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    /**
+     * Valida un token JWT desde un string.
+     * 
+     * @param token El token JWT a validar
+     * @return Pair con Claims y el token si es válido, null si no es válido
+     * @throws io.jsonwebtoken.JwtException si el token es inválido o expirado
+     */
+    public Pair<Claims, String> validateTokenFromString(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new IllegalArgumentException("Token no proporcionado");
+        }
+        
+        return new ImmutablePair<>(Jwts
+                .parserBuilder()
+                .setSigningKey(new SecretKeySpec(Base64.getDecoder().decode(jwtSecret.getBytes()), HS256.getJcaName()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody(), token);
+    }
+
 }
