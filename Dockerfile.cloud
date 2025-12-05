@@ -19,25 +19,36 @@ WORKDIR /app
 # Instalar wget para healthcheck y gcloud CLI para Secret Manager (opcional)
 RUN apk add --no-cache wget curl
 
+# Crear directorio para configuración externa
+RUN mkdir -p /app/config && chmod -R 755 /app/config
+
 # Copiar el JAR compilado
 COPY --from=build /app/target/*.jar app.jar
 
+# Copiar archivos de configuración de producción
+COPY --from=build /app/src/main/resources/application-prod.yml /app/config/application-prod.yml
+
 # Crear usuario no-root para seguridad
 RUN addgroup -S spring && adduser -S spring -G spring
+RUN chown -R spring:spring /app
 USER spring:spring
 
 # Exponer puerto (Cloud Run usa PORT variable)
 EXPOSE 8080
 
-# Variables de entorno por defecto
+# Variables de entorno por defecto para producción
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 ENV PORT=8080
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
+ENV GCP_PROJECT_ID=649345514504
+ENV GCP_SECRET_MANAGER_ENABLED=true
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/actuator/health || exit 1
 
-# Ejecutar la aplicación
+# Ejecutar la aplicación con perfil de producción
 # Cloud Run inyecta PORT automáticamente
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --server.port=${PORT}"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod --spring.config.additional-location=file:/app/config/ --server.port=${PORT}"]
 

@@ -12,6 +12,7 @@ services:
       - .env
     environment:
       - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
       - JAVA_OPTS=-Xmx512m -Xms256m
       # Variables de entorno para Cloud SQL (se obtienen desde Secret Manager o .env)
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
@@ -22,7 +23,8 @@ services:
       - PORT=${PORT:-9000}
       # Variables para Google Cloud (si se usa Secret Manager)
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-}
-      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-649345514504}
+      - GCP_SECRET_MANAGER_ENABLED=${GCP_SECRET_MANAGER_ENABLED:-true}
     networks:
       - parking-network
     restart: unless-stopped

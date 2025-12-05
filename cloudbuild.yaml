@@ -38,7 +38,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'SPRING_PROFILES_ACTIVE=prod'
+      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE}'
       - '--add-cloudsql-instances'
       - '${_CLOUD_SQL_INSTANCE}'
       - '--set-secrets'
@@ -51,7 +51,7 @@ steps:
 
 # Variables de sustitución (configurar en Cloud Build)
 substitutions:
-  _CLOUD_SQL_INSTANCE: 'PROJECT_ID:REGION:INSTANCE_NAME'
+  _CLOUD_SQL_INSTANCE: 'testauth20-394320:us-central1:parkingprodgcloud'
   _VPC_CONNECTOR_NAME: 'parking-vpc-connector'  # Opcional: nombre del VPC Connector
 
 # Opciones de build

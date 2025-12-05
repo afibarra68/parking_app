@@ -153,10 +153,27 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
             
             // Construir URL si no está completa
             if (url == null) {
-                if (cloudSqlInstance != null && database != null) {
-                    // Formato para Cloud SQL con socket factory (funciona con IP pública o privada)
+                // Verificar variables de entorno para Cloud SQL Unix Socket
+                // Cloud Run monta automáticamente el socket en /cloudsql/PROJECT-ID:REGION:INSTANCE-ID
+                String dbSocket = System.getenv("DB_SOCKET");
+                String cloudSqlInstanceFromEnv = System.getenv("CLOUD_SQL_INSTANCE");
+                
+                // Prioridad: cloudSqlInstance del secreto > CLOUD_SQL_INSTANCE env > DB_SOCKET env
+                String instanceToUse = cloudSqlInstance != null ? cloudSqlInstance : cloudSqlInstanceFromEnv;
+                
+                // Si DB_SOCKET está disponible pero no tenemos instancia, extraerla del path
+                if (instanceToUse == null && dbSocket != null && dbSocket.startsWith("/cloudsql/")) {
+                    instanceToUse = dbSocket.replace("/cloudsql/", "");
+                    log.debug("Instancia extraída de DB_SOCKET: {}", instanceToUse);
+                }
+                
+                if (instanceToUse != null && database != null) {
+                    // Formato para Cloud SQL con socket factory usando Unix Socket
+                    // Cloud Run monta el socket en /cloudsql/PROJECT-ID:REGION:INSTANCE-ID
+                    // El socket factory maneja automáticamente el socket Unix
                     url = String.format("jdbc:postgresql:///%s?cloudSqlInstance=%s&socketFactory=com.google.cloud.sql.postgres.SocketFactory",
-                            database, cloudSqlInstance);
+                            database, instanceToUse);
+                    log.debug("Usando Cloud SQL con socket factory e instancia: {}", instanceToUse);
                 } else if (host != null) {
                     // Formato estándar (puede ser IP privada de VPC)
                     String dbName = database != null ? database : "postgres";

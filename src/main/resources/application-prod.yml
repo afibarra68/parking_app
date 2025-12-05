@@ -15,13 +15,11 @@ spring:
     open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    # Cloud SQL connection usando socket factory
-    # Formato: jdbc:postgresql:///<DATABASE_NAME>?cloudSqlInstance=<INSTANCE_CONNECTION_NAME>&socketFactory=com.google.cloud.sql.postgres.SocketFactory
-    # Los valores se cargan desde Google Cloud Secret Manager:
-    #   - postgres_auth: configuración completa (URL, username, etc.)
-    #   - passwirk_sec: contraseña (tiene prioridad sobre password en postgres_auth)
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mp_parking_app?useSSL=false}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql:///mp_parking_app?cloudSqlInstance=testauth20-394320:us-central1:parkingprodgcloud&socketFactory=com.google.cloud.sql.postgres.SocketFactory}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    # Password se carga desde Google Cloud Secret Manager (secreto: passwirk_sec)
+    # SecretManagerConfig establece spring.datasource.password automáticamente desde el secreto
+    # Si el secreto no está disponible, usa la variable de entorno SPRING_DATASOURCE_PASSWORD
     password: ${SPRING_DATASOURCE_PASSWORD:}
     hikari:
       maxLifetime: 1800000
@@ -46,7 +44,7 @@ gcp:
     project-id: ${GCP_PROJECT_ID:649345514504}
 
 server:
-  port: ${PORT:9000}
+  port: ${PORT:8080}
   error:
     include-stacktrace: never
 

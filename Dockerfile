@@ -19,19 +19,28 @@ WORKDIR /app
 # Instalar wget para healthcheck
 RUN apk add --no-cache wget
 
+# Crear directorio para configuración externa
+RUN mkdir -p /app/config
+
 # Copiar el JAR compilado
 COPY --from=build /app/target/*.jar app.jar
 
+# Copiar archivos de configuración de producción (opcional, ya están en el JAR pero útil para override)
+COPY --from=build /app/src/main/resources/application-prod.yml /app/config/application-prod.yml
+
 # Exponer puerto
-EXPOSE 9000
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:9000/actuator/health || exit 1
 
-# Variables de entorno opcionales
+# Variables de entorno para producción
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
+ENV PORT=9000
 
-# Ejecutar la aplicación
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Ejecutar la aplicación con perfil de producción
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod --spring.config.additional-location=file:/app/config/"]
 
