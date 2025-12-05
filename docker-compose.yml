@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: parking-backend
     ports:
-      - "9000:9000"
+      - "8080:8080"
     env_file:
       - .env
     environment:
@@ -20,7 +20,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
       - SPRING_JWT_SECRET=${SPRING_JWT_SECRET}
       - SPRING_JWT_EXPIRATION=${SPRING_JWT_EXPIRATION:-100000000}
-      - PORT=${PORT:-9000}
+      - PORT=${PORT:-8080}
       # Variables para Google Cloud (si se usa Secret Manager)
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-}
       - GCP_PROJECT_ID=${GCP_PROJECT_ID:-649345514504}
@@ -29,7 +29,7 @@ services:
       - parking-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/actuator/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 3s
       retries: 3
