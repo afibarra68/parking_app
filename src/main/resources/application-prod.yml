@@ -18,8 +18,16 @@ spring:
     # URL de Cloud SQL con socket factory
     # Nota: El formato jdbc:postgresql:/// (sin host:puerto) es correcto para Cloud SQL
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql:///mp_parking_app?cloudSqlInstance=testauth20-394320:us-central1:parkingprodgcloud&socketFactory=com.google.cloud.sql.postgres.SocketFactory}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    # Password se carga desde Google Cloud Secret Manager (secreto: passwirk_sec)
+    # SecretManagerConfig establece:
+    #   1. spring.datasource.password (propiedad de Spring con mayor prioridad)
+    #   2. SPRING_DATASOURCE_PASSWORD (propiedad del sistema como fallback)
+    # Spring Boot usará automáticamente spring.datasource.password si está disponible
+    # Si no, usará SPRING_DATASOURCE_PASSWORD establecido por SecretManagerConfig
+    #______________Sdasaydausyda____________
+    password: ZPXFqR70~2AU:FSZ #______________Sdasaydausyda____________
+    #______________Sdasaydausyda____________
     hikari:
       maxLifetime: 1800000
       maximum-pool-size: 10
