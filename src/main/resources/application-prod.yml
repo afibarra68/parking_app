@@ -16,7 +16,11 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     # Cloud SQL connection usando socket factory
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db_parking_local?useSSL=false}
+    # Formato: jdbc:postgresql:///<DATABASE_NAME>?cloudSqlInstance=<INSTANCE_CONNECTION_NAME>&socketFactory=com.google.cloud.sql.postgres.SocketFactory
+    # Los valores se cargan desde Google Cloud Secret Manager:
+    #   - postgres_auth: configuración completa (URL, username, etc.)
+    #   - passwirk_sec: contraseña (tiene prioridad sobre password en postgres_auth)
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mp_parking_app?useSSL=false}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:}
     hikari:
@@ -35,6 +39,12 @@ spring:
   jwtSecret: ${SPRING_JWT_SECRET:4A404E635266556A586E3272357538782F413F4428472D4B6150645367566B59}
   jwtExpirationInMs: ${SPRING_JWT_EXPIRATION:100000000}
 
+# Configuración de Google Cloud Secret Manager
+gcp:
+  secret-manager:
+    enabled: ${GCP_SECRET_MANAGER_ENABLED:true}
+    project-id: ${GCP_PROJECT_ID:649345514504}
+
 server:
   port: ${PORT:9000}
   error:
@@ -44,6 +54,6 @@ logging:
   level:
     root: INFO
     com.webstore.usersMs: INFO
+    com.webstore.usersMs.config.SecretManagerConfig: DEBUG
     org.springframework.web: INFO
     org.hibernate: WARN
-

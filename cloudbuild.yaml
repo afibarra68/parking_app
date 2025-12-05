@@ -1,0 +1,69 @@
+# Cloud Build configuration para compilar y desplegar en Cloud Run
+steps:
+  # Compilar la aplicación
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile.cloud'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+      - '.'
+
+  # Push a Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+
+  # Desplegar en Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'parking-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'SPRING_PROFILES_ACTIVE=prod'
+      - '--add-cloudsql-instances'
+      - '${_CLOUD_SQL_INSTANCE}'
+      - '--set-secrets'
+      - 'SPRING_DATASOURCE_URL=parking-app-db-url:latest,SPRING_DATASOURCE_USERNAME=parking-app-db-username:latest,SPRING_DATASOURCE_PASSWORD=parking-app-db-password:latest,SPRING_JWT_SECRET=parking-app-jwt-secret:latest'
+      # Configuración VPC (opcional, descomentar si se usa VPC)
+      # - '--vpc-connector'
+      # - '${_VPC_CONNECTOR_NAME}'
+      # - '--vpc-egress'
+      # - 'private-ranges-only'
+
+# Variables de sustitución (configurar en Cloud Build)
+substitutions:
+  _CLOUD_SQL_INSTANCE: 'PROJECT_ID:REGION:INSTANCE_NAME'
+  _VPC_CONNECTOR_NAME: 'parking-vpc-connector'  # Opcional: nombre del VPC Connector
+
+# Opciones de build
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout
+timeout: '1200s'
+
+# Imágenes a almacenar
+images:
+  - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+  - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+

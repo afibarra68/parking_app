@@ -8,9 +8,21 @@ services:
     container_name: parking-backend
     ports:
       - "9000:9000"
+    env_file:
+      - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
       - JAVA_OPTS=-Xmx512m -Xms256m
+      # Variables de entorno para Cloud SQL (se obtienen desde Secret Manager o .env)
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_JWT_SECRET=${SPRING_JWT_SECRET}
+      - SPRING_JWT_EXPIRATION=${SPRING_JWT_EXPIRATION:-100000000}
+      - PORT=${PORT:-9000}
+      # Variables para Google Cloud (si se usa Secret Manager)
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS:-}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID:-}
     networks:
       - parking-network
     restart: unless-stopped
@@ -20,28 +32,32 @@ services:
       timeout: 3s
       retries: 3
       start_period: 40s
-    depends_on:
-      - postgres
+    # Solo depende de postgres si se usa el perfil local-db
+    # Para Cloud SQL, no incluir depends_on
 
+  # Servicio de PostgreSQL local (solo para desarrollo)
+  # En producción, usar Cloud SQL
   postgres:
     image: postgres:15-alpine
     container_name: parking-postgres
     environment:
-      - POSTGRES_DB=db_parking_local
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=And__T..123@
+      - POSTGRES_DB=${POSTGRES_DB:-db_parking_local}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - parking-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    profiles:
+      - local-db
 
 networks:
   parking-network:
