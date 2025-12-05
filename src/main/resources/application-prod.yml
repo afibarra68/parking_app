@@ -21,7 +21,7 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
-      maxLifetime: 1800000s
+      maxLifetime: 1800000
       maximum-pool-size: 10
       minimum-idle: 1
       idle-timeout: 600000
