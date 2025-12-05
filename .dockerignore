@@ -1,0 +1,41 @@
+# Archivos de compilación
+target/
+*.jar
+*.war
+*.ear
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentación
+*.md
+!README.md
+
+# Archivos de Maven wrapper (se usarán dentro del contenedor)
+.mvn/
+
+# Archivos de logs
+*.log
+
+# Archivos temporales
+*.tmp
+*.bak
+*.swp
+*~
+
