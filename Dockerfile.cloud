@@ -44,11 +44,12 @@ ENV SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
 ENV GCP_PROJECT_ID=649345514504
 ENV GCP_SECRET_MANAGER_ENABLED=true
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/actuator/health || exit 1
+# Health check deshabilitado (Cloud Run maneja su propio health check)
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+#   CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT}/actuator/health || exit 1
 
 # Ejecutar la aplicación con perfil de producción
-# Cloud Run inyecta PORT automáticamente
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod --spring.config.additional-location=file:/app/config/ --server.port=${PORT}"]
+# Cloud Run inyecta PORT automáticamente como variable de entorno
+# Usar exec para que Java sea el proceso principal (PID 1) y Cloud Run pueda detectar el puerto
+ENTRYPOINT ["sh", "-c", "echo 'Starting application on port ${PORT:-8080}' && exec java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod --spring.config.additional-location=file:/app/config/ --server.port=${PORT:-8080}"]
 
