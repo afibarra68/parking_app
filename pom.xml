@@ -52,9 +52,11 @@
 			<artifactId>flyway-core</artifactId>
 			<version>${flyway.version}</version>
 		</dependency>
+		<!-- PostgreSQL Driver - versión compatible con Cloud SQL Socket Factory -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>42.7.3</version>
 			<scope>runtime</scope>
 		</dependency>
 		<!-- Cloud SQL Socket Factory for Google Cloud -->

@@ -97,8 +97,11 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
                 // El secreto puede ser solo la contraseña o un JSON
                 String password = extractPasswordFromSecret(passwordSecret);
                 if (password != null && !password.isEmpty()) {
+                    // Establecer como propiedad de Spring Boot (tiene mayor prioridad)
                     allProperties.put("spring.datasource.password", password);
-                    log.info("Contraseña cargada desde secreto '{}'", PASSWORD_SECRET_NAME);
+                    // También establecer como variable de entorno del sistema para compatibilidad
+                    System.setProperty("SPRING_DATASOURCE_PASSWORD", password);
+                    log.info("Contraseña cargada desde secreto '{}' y configurada", PASSWORD_SECRET_NAME);
                 } else {
                     log.warn("No se pudo extraer contraseña del secreto '{}'", PASSWORD_SECRET_NAME);
                 }
@@ -115,7 +118,25 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
         if (!allProperties.isEmpty()) {
             MapPropertySource propertySource = new MapPropertySource("gcp-secrets", allProperties);
             environment.getPropertySources().addFirst(propertySource);
-            log.info("Propiedades de Secret Manager configuradas exitosamente");
+            log.info("Propiedades de Secret Manager configuradas exitosamente. Total de propiedades: {}", allProperties.size());
+            
+            // Log de las propiedades configuradas (sin mostrar valores sensibles)
+            allProperties.keySet().forEach(key -> {
+                if (key.contains("password")) {
+                    log.debug("Propiedad '{}' configurada (valor oculto)", key);
+                } else {
+                    log.debug("Propiedad '{}' = '{}'", key, allProperties.get(key));
+                }
+            });
+            
+            // Verificar que la contraseña esté configurada
+            if (allProperties.containsKey("spring.datasource.password")) {
+                String passwordValue = (String) allProperties.get("spring.datasource.password");
+                log.info("Contraseña de base de datos configurada desde Secret Manager (longitud: {})", 
+                        passwordValue != null ? passwordValue.length() : 0);
+            } else {
+                log.warn("ADVERTENCIA: spring.datasource.password NO está configurado en Secret Manager");
+            }
         } else {
             log.warn("No se pudieron cargar propiedades desde Secret Manager");
         }
@@ -173,6 +194,8 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
             
             if (password != null) {
                 properties.put("spring.datasource.password", password);
+                // También establecer como variable de entorno del sistema para compatibilidad
+                System.setProperty("SPRING_DATASOURCE_PASSWORD", password);
                 log.debug("spring.datasource.password configurado desde secreto");
             }
             
@@ -244,7 +267,10 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
         String[] parts = secretValue.split(":");
         if (parts.length >= 2) {
             properties.put("spring.datasource.username", parts[0]);
-            properties.put("spring.datasource.password", parts[1]);
+            String password = parts[1];
+            properties.put("spring.datasource.password", password);
+            // También establecer como variable de entorno del sistema
+            System.setProperty("SPRING_DATASOURCE_PASSWORD", password);
             if (parts.length >= 3) {
                 properties.put("spring.datasource.url", parts[2]);
             }
