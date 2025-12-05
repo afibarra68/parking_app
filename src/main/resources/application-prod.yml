@@ -17,10 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql:///mp_parking_app?cloudSqlInstance=testauth20-394320:us-central1:parkingprodgcloud&socketFactory=com.google.cloud.sql.postgres.SocketFactory}
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    # Password se carga desde Google Cloud Secret Manager (secreto: passwirk_sec)
-    # SecretManagerConfig establece spring.datasource.password automáticamente desde el secreto
-    # Si el secreto no está disponible, usa la variable de entorno SPRING_DATASOURCE_PASSWORD
-    password: ${SPRING_DATASOURCE_PASSWORD:}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
       maxLifetime: 1800000
       maximum-pool-size: 10
