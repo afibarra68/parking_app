@@ -34,20 +34,36 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        // Solo cargar secretos si el perfil es 'prod'
+        // Verificar si está habilitado primero (tiene prioridad)
+        String enabled = environment.getProperty("gcp.secret-manager.enabled", "true");
+        if (!Boolean.parseBoolean(enabled)) {
+            log.debug("Secret Manager está deshabilitado. Usando variables de entorno estándar.");
+            return;
+        }
+        
+        // No ejecutar durante tests
         String[] activeProfiles = environment.getActiveProfiles();
+        boolean isTest = java.util.Arrays.asList(activeProfiles).contains("test");
+        
+        // Verificar si es una clase de test
+        if (application.getMainApplicationClass() != null) {
+            String className = application.getMainApplicationClass().getName();
+            if (className.contains("Test") || className.contains("Tests")) {
+                isTest = true;
+            }
+        }
+        
+        if (isTest) {
+            log.debug("Entorno de test detectado, omitiendo carga de secretos desde GCP");
+            return;
+        }
+        
+        // Solo cargar secretos si el perfil es 'prod'
         boolean isProd = activeProfiles.length > 0 && 
                         java.util.Arrays.asList(activeProfiles).contains("prod");
         
         if (!isProd) {
             log.debug("Perfil no es 'prod', omitiendo carga de secretos desde GCP");
-            return;
-        }
-
-        // Verificar si está habilitado
-        String enabled = environment.getProperty("gcp.secret-manager.enabled", "true");
-        if (!Boolean.parseBoolean(enabled)) {
-            log.info("Secret Manager está deshabilitado. Usando variables de entorno estándar.");
             return;
         }
 
@@ -106,21 +122,30 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
     }
 
     private String getSecretFromGCP(String projectId, String secretName) throws IOException {
-        try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
-            // Construir el nombre de la versión del secreto
-            SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, "latest");
-            
-            // Crear la solicitud
-            AccessSecretVersionRequest request = AccessSecretVersionRequest.newBuilder()
-                    .setName(secretVersionName.toString())
-                    .build();
-            
-            // Acceder al secreto
-            AccessSecretVersionResponse response = client.accessSecretVersion(request);
-            return response.getPayload().getData().toStringUtf8();
+        try {
+            SecretManagerServiceClient client = SecretManagerServiceClient.create();
+            try {
+                // Construir el nombre de la versión del secreto
+                SecretVersionName secretVersionName = SecretVersionName.of(projectId, secretName, "latest");
+                
+                // Crear la solicitud
+                AccessSecretVersionRequest request = AccessSecretVersionRequest.newBuilder()
+                        .setName(secretVersionName.toString())
+                        .build();
+                
+                // Acceder al secreto
+                AccessSecretVersionResponse response = client.accessSecretVersion(request);
+                return response.getPayload().getData().toStringUtf8();
+            } finally {
+                if (client != null) {
+                    client.close();
+                }
+            }
         } catch (Exception e) {
-            log.error("Error al acceder al secreto: {}", e.getMessage());
-            throw e;
+            // Log del error pero no lanzar excepción para no romper la inicialización
+            log.warn("Error al acceder al secreto '{}': {}. Esto puede ser normal en entornos locales sin credenciales de GCP.", 
+                    secretName, e.getMessage());
+            throw new IOException("No se pudo acceder al secreto: " + e.getMessage(), e);
         }
     }
 
