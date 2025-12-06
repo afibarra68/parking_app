@@ -43,7 +43,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4202", "http://localhost:4200", "http://localhost:4203"));
+        // Orígenes permitidos: localhost para desarrollo y Cloud Run para producción
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:4202", 
+            "http://localhost:4200", 
+            "http://localhost:4203",
+            "https://parking-frontend-520107883510.us-central1.run.app"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
