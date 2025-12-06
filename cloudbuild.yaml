@@ -7,21 +7,21 @@ steps:
       - '-f'
       - 'Dockerfile.cloud'
       - '-t'
-      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:$SHORT_SHA'
       - '-t'
-      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
+      - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:latest'
       - '.'
 
   # Push a Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:$SHORT_SHA'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
+      - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:latest'
 
   # Desplegar en Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -31,7 +31,7 @@ steps:
       - 'deploy'
       - 'parking-backend'
       - '--image'
-      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:$SHORT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
@@ -74,6 +74,6 @@ timeout: '1200s'
 
 # Imágenes a almacenar
 images:
-  - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
-  - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
+  - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:$SHORT_SHA'
+  - 'us-docker.pkg.dev/$PROJECT_ID/parking-services-repo/parking-backend:latest'
 
