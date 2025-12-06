@@ -38,7 +38,8 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE},PORT=8080,SPRING_DATASOURCE_USERNAME=postgres'
+      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE},PORT=8080,SPRING_DATASOURCE_USERNAME=	
+postgres_user'
       - '--add-cloudsql-instances'
       - '${_CLOUD_SQL_INSTANCE}'
       - '--timeout'
@@ -52,7 +53,7 @@ steps:
       - '--max-instances'
       - '10'
       - '--set-secrets'
-      - 'SPRING_DATASOURCE_PASSWORD=passwirk_sec:latest'
+      - 'SPRING_DATASOURCE_PASSWORD=postgres_password:latest'
       # Configuración VPC (opcional, descomentar si se usa VPC)
       # - '--vpc-connector'
       # - '${_VPC_CONNECTOR_NAME}'

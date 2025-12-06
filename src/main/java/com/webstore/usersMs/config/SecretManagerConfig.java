@@ -27,7 +27,7 @@ import java.util.Map;
 @Log4j2
 public class SecretManagerConfig implements EnvironmentPostProcessor {
 
-    private static final String PROJECT_ID = "649345514504";
+    private static final String PROJECT_ID = "testauth20-394320";
     private static final String SECRET_NAME = "postgres_auth";
     private static final String PASSWORD_SECRET_NAME = "passwirk_sec";
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -168,6 +168,8 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
             // Agregar propiedades al mapa
             if (username != null) {
                 properties.put("spring.datasource.username", username);
+                // También establecer como variable de entorno del sistema para compatibilidad
+                System.setProperty("SPRING_DATASOURCE_USERNAME", username);
                 log.debug("spring.datasource.username configurado desde secreto");
             }
             
@@ -243,8 +245,14 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
         // Formato esperado: username:password:url o username:password
         String[] parts = secretValue.split(":");
         if (parts.length >= 2) {
-            properties.put("spring.datasource.username", parts[0]);
-            properties.put("spring.datasource.password", parts[1]);
+            String username = parts[0];
+            properties.put("spring.datasource.username", username);
+            // También establecer como variable de entorno del sistema
+            System.setProperty("SPRING_DATASOURCE_USERNAME", username);
+            String password = parts[1];
+            properties.put("spring.datasource.password", password);
+            // También establecer como variable de entorno del sistema
+            System.setProperty("SPRING_DATASOURCE_PASSWORD", password);
             if (parts.length >= 3) {
                 properties.put("spring.datasource.url", parts[2]);
             }
