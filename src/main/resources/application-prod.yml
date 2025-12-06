@@ -17,7 +17,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     # URL de Cloud SQL con socket factory
     # Nota: El formato jdbc:postgresql:/// (sin host:puerto) es correcto para Cloud SQL
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql:///mp_parking_app?cloudSqlInstance=testauth20-394320:us-central1:parkingprodgcloud&socketFactory=com.google.cloud.sql.postgres.SocketFactory}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql:///mp_parking_app?cloudSqlInstance=parking-services-480307:us-central1:parkingprodgcloudb&socketFactory=com.google.cloud.sql.postgres.SocketFactory}
     username: ${SPRING_DATASOURCE_USERNAME}
     # Password se carga desde Google Cloud Secret Manager (secreto: passwirk_sec)
     # SecretManagerConfig establece:

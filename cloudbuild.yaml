@@ -53,7 +53,7 @@ postgres_user'
       - '--max-instances'
       - '10'
       - '--set-secrets'
-      - 'SPRING_DATASOURCE_PASSWORD=postgres_password:latest'
+      - 'SPRING_DATASOURCE_PASSWORD=postgres_password:latest' 
       # Configuración VPC (opcional, descomentar si se usa VPC)
       # - '--vpc-connector'
       # - '${_VPC_CONNECTOR_NAME}'
