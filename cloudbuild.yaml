@@ -38,7 +38,7 @@ steps:
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE},PORT=8080'
+      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE}'
       - '--add-cloudsql-instances'
       - '${_CLOUD_SQL_INSTANCE}'
       - '--timeout'

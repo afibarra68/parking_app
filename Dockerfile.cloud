@@ -2,15 +2,18 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copiar archivos de configuración de Maven
+# Copiar archivos de configuración de Maven primero para cachear dependencias
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
 
-# Copiar código fuente
+# Descargar dependencias (esta capa se cachea si pom.xml no cambia)
+RUN mvn dependency:go-offline -B || mvn dependency:resolve -B
+
+# Copiar código fuente (solo se recompila si el código cambia)
 COPY src ./src
 
-# Compilar la aplicación
-RUN mvn clean package -DskipTests
+# Compilar la aplicación (sin clean para preservar cache cuando sea posible)
+# Usar package en lugar de clean package para mejor uso del cache
+RUN mvn package -DskipTests -B
 
 # Imagen final optimizada para Cloud Run
 FROM eclipse-temurin:17-jre-alpine
