@@ -7,21 +7,21 @@ steps:
       - '-f'
       - 'Dockerfile.cloud'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
       - '-t'
-      - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
       - '.'
 
-  # Push a Container Registry
+  # Push a Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
 
   # Desplegar en Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -31,15 +31,14 @@ steps:
       - 'deploy'
       - 'parking-backend'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
+      - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
       - '--set-env-vars'
-      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE},PORT=8080,SPRING_DATASOURCE_USERNAME=	
-postgres_user'
+      - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE},PORT=8080,SPRING_DATASOURCE_USERNAME=postgres_user'
       - '--add-cloudsql-instances'
       - '${_CLOUD_SQL_INSTANCE}'
       - '--timeout'
@@ -75,6 +74,6 @@ timeout: '1200s'
 
 # Imágenes a almacenar
 images:
-  - 'gcr.io/$PROJECT_ID/parking-backend:$SHORT_SHA'
-  - 'gcr.io/$PROJECT_ID/parking-backend:latest'
+  - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:$SHORT_SHA'
+  - 'us-docker.pkg.dev/$PROJECT_ID/docker-images/parking-backend:latest'
 
