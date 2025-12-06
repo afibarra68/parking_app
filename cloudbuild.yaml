@@ -43,7 +43,6 @@ steps:
       - '${_CLOUD_SQL_INSTANCE}'
       - '--timeout'
       - '600s'
-      - '--startup-cpu-boost'
       - '--cpu'
       - '1'
       - '--memory'
