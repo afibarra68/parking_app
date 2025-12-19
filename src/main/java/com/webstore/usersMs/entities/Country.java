@@ -22,7 +22,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 public class Country {
 
-    private static final String USER_ID_SEQ = "country_id_seq";
+    private static final String USER_ID_SEQ = "country_country_id_seq";
 
     @Id
     @GeneratedValue(generator = USER_ID_SEQ, strategy = SEQUENCE)

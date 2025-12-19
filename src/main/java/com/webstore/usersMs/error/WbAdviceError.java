@@ -17,7 +17,7 @@ import lombok.extern.log4j.Log4j2;
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @AllArgsConstructor
-@PropertySource("classpath:exceptions/exception.properties")
+@PropertySource("classpath:com/webstore/usersMs/exceptions/exception.properties")
 public class WbAdviceError {
 
     private final ExceptionLoggerService service;

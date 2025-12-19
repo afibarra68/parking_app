@@ -1,5 +1,7 @@
 package com.webstore.usersMs.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.webstore.usersMs.error.handlers.enums.EnumResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +17,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DClosedTransaction {
 
     private Long closedTransactionId;
@@ -31,7 +34,7 @@ public class DClosedTransaction {
 
     private Long companyCompanyId;
 
-    private String status;
+    private EnumResource status;
 
     private Long billingPriceBillingPriceId;
 

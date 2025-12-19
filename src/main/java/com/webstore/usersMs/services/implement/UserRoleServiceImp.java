@@ -18,6 +18,7 @@ import com.webstore.usersMs.repositories.CompanyRepository;
 import com.webstore.usersMs.repositories.UserRepository;
 import com.webstore.usersMs.services.UserRoleService;
 import com.webstore.usersMs.error.WbException;
+import com.webstore.usersMs.error.handlers.enums.WbErrorCode;
 import com.webstore.usersMs.entities.Company;
 
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,27 @@ public class UserRoleServiceImp implements UserRoleService {
         log.info( "{}, {}", roleCreated, user.getAppUserId());
 
         repository.save(roleCreated);
+    }
+
+    @Override
+    public void update(Long userRoleId, DUserRole role) throws WbException {
+        Optional<UserRole> existingRoleOpt = repository.findById(userRoleId);
+        if (existingRoleOpt.isEmpty()) {
+            throw new WbException(WbErrorCode.NOT_FOUND);
+        }
+
+        UserRole existingRole = existingRoleOpt.get();
+        DUserCreated user = userService.getUser(role.getNumberIdentity());
+
+        // Actualizar el rol y el usuario
+        existingRole.setRole(ERole.valueOf(role.getRole()));
+        existingRole.setUser(User
+                .builder()
+                .appUserId(user.getAppUserId())
+                .build());
+
+        log.info("Actualizando relación usuario-rol: {}, {}", userRoleId, user.getAppUserId());
+        repository.save(existingRole);
     }
 
     @Override

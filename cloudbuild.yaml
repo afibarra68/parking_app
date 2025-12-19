@@ -36,7 +36,7 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
-      - '--allow-unauthenticated'
+      - '--no-allow-unauthenticated'
       - '--set-env-vars'
       - 'SPRING_PROFILES_ACTIVE=prod,DB_SOCKET=/cloudsql/${_CLOUD_SQL_INSTANCE},CLOUD_SQL_INSTANCE=${_CLOUD_SQL_INSTANCE}'
       - '--add-cloudsql-instances'

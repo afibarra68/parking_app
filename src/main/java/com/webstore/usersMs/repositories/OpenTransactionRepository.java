@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface OpenTransactionRepository extends JpaRepository<OpenTransaction, Long> {
 
-    Optional<OpenTransaction> findByOpenTransactionId(Long openTransactionId);
+    Optional<OpenTransaction> findByOpenTransactionIdAndCompanyCompanyId(Long openTransactionId, Long companyId);
 
     @Query(value = "SELECT ot.* FROM open_transaction ot " +
            "WHERE (:status IS NULL OR :status = '' OR ot.status ILIKE '%' || :status || '%') " +

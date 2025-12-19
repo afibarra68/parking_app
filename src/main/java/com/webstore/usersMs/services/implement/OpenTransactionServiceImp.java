@@ -12,6 +12,7 @@ import com.webstore.usersMs.entities.OpenTransaction;
 import com.webstore.usersMs.entities.Company;
 import com.webstore.usersMs.entities.BillingPrice;
 import com.webstore.usersMs.entities.User;
+import com.webstore.usersMs.entities.enums.EtransactionStatus;
 import com.webstore.usersMs.model.UserLogin;
 import com.webstore.usersMs.mappers.OpenTransactionMapper;
 import com.webstore.usersMs.repositories.OpenTransactionRepository;
@@ -110,18 +111,13 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         entity.setStartDay(now.toLocalDate());
         entity.setStartTime(now.toLocalTime());
         entity.setOperationDate(now);
-        
-        // Establecer estado por defecto si no viene
-        if (entity.getStatus() == null || entity.getStatus().isEmpty()) {
-            entity.setStatus("OPEN");
-        }
-        
+        entity.setStatus(EtransactionStatus.OPEN);
         return mapper.toDto(repository.save(entity));
     }
 
     @Override
     public DOpenTransaction update(DOpenTransaction dto) throws WbException {
-        Optional<OpenTransaction> entity = repository.findByOpenTransactionId(dto.getOpenTransactionId());
+        Optional<OpenTransaction> entity = repository.findByOpenTransactionIdAndCompanyCompanyId(dto.getOpenTransactionId(), dto.getCompanyCompanyId());
         if (entity.isEmpty()) {
             throw new WbException(CLIENT_NOT_FOUND);
         }

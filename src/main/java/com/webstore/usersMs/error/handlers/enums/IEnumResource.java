@@ -16,14 +16,13 @@ import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-
 public interface IEnumResource {
 
-   String DEFAULT_RESOURCE = "src/main/resources/exceptions/exception.properties";
+   String DEFAULT_RESOURCE = "com/webstore/usersMs/enums/enum";
 
-    String getEnumKey();
+   String getEnumKey();
 
-    String getResourceKey();
+   String getResourceKey();
 
    Logger getLog();
 
@@ -31,9 +30,8 @@ public interface IEnumResource {
       return EMPTY;
    }
 
-
    default String getLocaleMessage(Object... params) {
-      return getLocaleMessageImpl(new Locale("es", ""), params);
+      return getLocaleMessageImpl(new Locale("", ""), params);
    }
 
    default String getLocaleMessageImpl(Locale locale, Object... params) {

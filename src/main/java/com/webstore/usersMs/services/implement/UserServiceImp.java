@@ -50,8 +50,17 @@ public class UserServiceImp implements UserService {
     private final UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
     public DUserCreated create(DUser dUser) throws WbException {
+        // Si no viene password, generar basado en numberIdentity
+        String password = dUser.getPassword();
+        if (password == null || password.trim().isEmpty()) {
+            if (dUser.getNumberIdentity() == null || dUser.getNumberIdentity().trim().isEmpty()) {
+                throw new WbException(WbErrorCode.CAN_NOT_CREATE_USER);
+            }
+            // Usar el numberIdentity como contraseña por defecto
+            password = dUser.getNumberIdentity();
+        }
 
-        Pair<String, String> passAndLead = HashUtils.getEncryptData(dUser.getPassword());
+        Pair<String, String> passAndLead = HashUtils.getEncryptData(password);
         User entity = mapper.fromDto(dUser);
         if (validateUser(entity)) {
             throw new WbException(WbErrorCode.CAN_NOT_CREATE_USER);
@@ -59,7 +68,6 @@ public class UserServiceImp implements UserService {
 
         entity.setPassword(passAndLead.getLeft());
         entity.setSalt(passAndLead.getRight());
-
 
         return mapper.toBasicData(repository.save(entity));
     }
@@ -70,7 +78,66 @@ public class UserServiceImp implements UserService {
         return acceptSaving;
     }
 
-    ;
+    @Override
+    public DUserCreated update(DUser dUser) throws WbException {
+        if (dUser.getAppUserId() == null) {
+            throw new WbException(WbErrorCode.NOT_FOUND);
+        }
+
+        Optional<User> existingUserOpt = repository.findById(dUser.getAppUserId());
+        if (existingUserOpt.isEmpty()) {
+            throw new WbException(WbErrorCode.NOT_FOUND);
+        }
+
+        User existingUser = existingUserOpt.get();
+
+        // Actualizar campos permitidos
+        // Mapeo correcto: DTO -> Entity (DB)
+        // DTO firstName (primer nombre) -> Entity firstName (DB: first_name)
+        if (dUser.getFirstName() != null) {
+            existingUser.setFirstName(dUser.getFirstName());
+        }
+        // DTO secondName (segundo nombre) -> Entity secondName (DB: last_name)
+        if (dUser.getSecondName() != null) {
+            existingUser.setSecondName(dUser.getSecondName());
+        }
+        // DTO lastName (primer apellido) -> Entity lastName (DB: second_name)
+        if (dUser.getLastName() != null) {
+            existingUser.setLastName(dUser.getLastName());
+        }
+        // DTO secondLastName (segundo apellido) -> Entity secondLastname (DB:
+        // second_lastname)
+        if (dUser.getSecondLastName() != null) {
+            existingUser.setSecondLastname(dUser.getSecondLastName());
+        }
+        if (dUser.getNumberIdentity() != null && !dUser.getNumberIdentity().equals(existingUser.getNumberIdentity())) {
+            // Verificar que el nuevo numberIdentity no esté en uso por otro usuario
+            Optional<User> userWithSameIdentity = repository.findByNumberIdentity(dUser.getNumberIdentity());
+            if (userWithSameIdentity.isPresent()
+                    && !userWithSameIdentity.get().getAppUserId().equals(existingUser.getAppUserId())) {
+                throw new WbException(WbErrorCode.CAN_NOT_CREATE_USER);
+            }
+            existingUser.setNumberIdentity(dUser.getNumberIdentity());
+        }
+        if (dUser.getCompanyCompanyId() != null) {
+            existingUser.setCompanyCompanyId(dUser.getCompanyCompanyId());
+        }
+        if (dUser.getProcessorId() != null && !dUser.getProcessorId().trim().isEmpty()) {
+            existingUser.setProcessorId(dUser.getProcessorId());
+        }
+        if (dUser.getAccessCredential() != null) {
+            existingUser.setAccessCredential(dUser.getAccessCredential());
+        }
+
+        // Si se proporciona una nueva contraseña, actualizarla
+        if (dUser.getPassword() != null && !dUser.getPassword().trim().isEmpty()) {
+            Pair<String, String> passAndLead = HashUtils.getEncryptData(dUser.getPassword());
+            existingUser.setPassword(passAndLead.getLeft());
+            existingUser.setSalt(passAndLead.getRight());
+        }
+
+        return mapper.toBasicData(repository.save(existingUser));
+    }
 
     public DUserLoginResponse login(DUserLogin dUser, HttpServletResponse httpServletResponse)
             throws WbException {
@@ -85,7 +152,7 @@ public class UserServiceImp implements UserService {
                 .map(userRole -> userRole.getRole().toString()).toList();
         UserLogin userRes = mapper.toLoginResponse(user);
         userRes.setRoles(authorities);
-        
+
         // Obtener información de la empresa si el usuario está relacionado a una
         if (user.getCompanyCompanyId() != null) {
             Optional<Company> companyOpt = companyRepository.findByCompanyId(user.getCompanyCompanyId());
@@ -96,17 +163,17 @@ public class UserServiceImp implements UserService {
                 // Si la empresa tiene descripción, se puede agregar aquí
                 // Por ahora, usamos el numberIdentity como descripción alternativa
                 userRes.setCompanyDescription(company.getNumberIdentity());
-                log.info("Compañía asignada al usuario en login: companyId={}, companyName={}", 
-                    company.getCompanyId(), company.getCompanyName());
+                log.info("Compañía asignada al usuario en login: companyId={}, companyName={}",
+                        company.getCompanyId(), company.getCompanyName());
             } else {
-                log.warn("Usuario tiene companyCompanyId={} pero la compañía no existe en la BD", 
-                    user.getCompanyCompanyId());
+                log.warn("Usuario tiene companyCompanyId={} pero la compañía no existe en la BD",
+                        user.getCompanyCompanyId());
             }
         } else {
-            log.warn("Usuario sin compañía asociada. appUserId={}, numberIdentity={}", 
-                user.getAppUserId(), user.getNumberIdentity());
+            log.warn("Usuario sin compañía asociada. appUserId={}, numberIdentity={}",
+                    user.getAppUserId(), user.getNumberIdentity());
         }
-        
+
         jwtPair = serviceJWT.generateToken(userRes);
         userRes.setJwt(jwtPair.getLeft());
         userRes.setTokenType("Bearer");
@@ -118,7 +185,6 @@ public class UserServiceImp implements UserService {
     public DUserCreated deleteByDocument(Long userDocument) {
         return null;
     }
-
 
     @Override
     public DUserCreated getUser(String numberIdentity) throws WbException {
@@ -140,7 +206,8 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public Page<DUserList> findByPageable(Long appUserId, String numberIdentity, Long companyCompanyId, Pageable pageable) {
+    public Page<DUserList> findByPageable(Long appUserId, String numberIdentity, Long companyCompanyId,
+            Pageable pageable) {
         Page<User> users = repository.findByPageable(appUserId, numberIdentity, companyCompanyId, pageable);
         return users.map(user -> {
             DUserList.DUserListBuilder builder = DUserList.builder()
@@ -172,14 +239,15 @@ public class UserServiceImp implements UserService {
         // El JwtRequestFilter ya procesó el token y estableció el Authentication
         // en el SecurityContext antes de que la petición llegue aquí
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+
         if (authentication != null && authentication.getPrincipal() instanceof UserLogin) {
             UserLogin userLogin = (UserLogin) authentication.getPrincipal();
             log.debug("Usuario autenticado obtenido del SecurityContext: {}", userLogin.getAppUserId());
             return userLogin;
         }
-        
-        log.warn("No se encontró usuario autenticado en el SecurityContext. El token puede no haber sido procesado correctamente.");
+
+        log.warn(
+                "No se encontró usuario autenticado en el SecurityContext. El token puede no haber sido procesado correctamente.");
         return null;
     }
 
@@ -188,50 +256,50 @@ public class UserServiceImp implements UserService {
         try {
             if (token == null || token.isEmpty()) {
                 return DTokenValidationResponse.builder()
-                    .valid(false)
-                    .message("Token no proporcionado")
-                    .build();
+                        .valid(false)
+                        .message("Token no proporcionado")
+                        .build();
             }
-            
+
             // Validar el token usando JwtUtil
             try {
                 Pair<io.jsonwebtoken.Claims, String> pair = serviceJWT.validateTokenFromString(token);
-                
+
                 // Verificar que el token no haya expirado
                 io.jsonwebtoken.Claims claims = pair.getLeft();
                 if (claims.getExpiration() != null && claims.getExpiration().before(new Date())) {
                     log.warn("Token expirado para usuario: {}", claims.getSubject());
                     return DTokenValidationResponse.builder()
-                        .valid(false)
-                        .message("Token expirado")
-                        .build();
+                            .valid(false)
+                            .message("Token expirado")
+                            .build();
                 }
-                
+
                 return DTokenValidationResponse.builder()
-                    .valid(true)
-                    .message("Token válido")
-                    .build();
-                    
+                        .valid(true)
+                        .message("Token válido")
+                        .build();
+
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
                 log.warn("Token expirado: {}", e.getMessage());
                 return DTokenValidationResponse.builder()
-                    .valid(false)
-                    .message("Token expirado")
-                    .build();
+                        .valid(false)
+                        .message("Token expirado")
+                        .build();
             } catch (io.jsonwebtoken.JwtException e) {
                 log.warn("Token inválido: {}", e.getMessage());
                 return DTokenValidationResponse.builder()
-                    .valid(false)
-                    .message("Token inválido: " + e.getMessage())
-                    .build();
+                        .valid(false)
+                        .message("Token inválido: " + e.getMessage())
+                        .build();
             }
-                
+
         } catch (Exception e) {
             log.error("Error al validar token: {}", e.getMessage(), e);
             return DTokenValidationResponse.builder()
-                .valid(false)
-                .message("Error al validar token: " + e.getMessage())
-                .build();
+                    .valid(false)
+                    .message("Error al validar token: " + e.getMessage())
+                    .build();
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.webstore.usersMs.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.webstore.usersMs.error.handlers.enums.EnumResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,12 +15,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DBillingPrice {
 
     @EqualsAndHashCode.Include
     private Long billingPriceId;
 
-    private String status;
+    private EnumResource status;
 
     private LocalDate dateStartDisabled;
 
@@ -32,12 +35,15 @@ public class DBillingPrice {
 
     private Long businessServiceBusinessServiceId;
 
+    @Deprecated
     private Integer start;
 
+    @Deprecated
     private Integer end;
+
+    private Integer hours;
 
     private Long mount;
 
-    private String tipoVehiculo;
+    private EnumResource tipoVehiculo;
 }
-

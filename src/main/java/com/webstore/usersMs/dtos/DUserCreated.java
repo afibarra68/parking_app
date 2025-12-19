@@ -1,5 +1,6 @@
 package com.webstore.usersMs.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DUserCreated {
 
     private Long appUserId;

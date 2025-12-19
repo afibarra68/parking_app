@@ -1,5 +1,6 @@
 package com.webstore.usersMs.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DUser {
 
     private Long appUserId;
@@ -40,4 +42,8 @@ public class DUser {
     private String accessCredential;
 
     private LocalDate accessLevel;
+
+    private Long companyCompanyId;
+
+    private String processorId;
 }

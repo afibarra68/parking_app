@@ -1,12 +1,14 @@
 package com.webstore.usersMs.entities.enums;
 
 import com.webstore.usersMs.error.handlers.enums.IEnumResource;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Log4j2
 public enum ERole implements IEnumResource {
 
     SUPER_USER,
@@ -44,6 +46,6 @@ public enum ERole implements IEnumResource {
 
     @Override
     public Logger getLog() {
-        return null;
+        return log;
     }
 }

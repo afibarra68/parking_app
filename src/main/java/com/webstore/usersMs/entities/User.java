@@ -36,15 +36,19 @@ public class User {
     private Long appUserId;
 
     @NotNull
+    @Column(name = "first_name")
     private String firstName;
 
     @NotNull
-    private String lastName;
+    @Column(name = "last_name")
+    private String secondName; // last_name en DB = segundo nombre
 
     @NotNull
-    private String secondName;
+    @Column(name = "second_name")
+    private String lastName; // second_name en DB = primer apellido
 
     @NotNull
+    @Column(name = "second_lastname")
     private String secondLastname;
 
     private Long companyName;

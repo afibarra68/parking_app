@@ -42,5 +42,14 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             @Param("numberIdentity") String numberIdentity,
             Pageable pageable);
 
+    /**
+     * Cuenta cuántas empresas están asociadas a un país específico.
+     * 
+     * @param countryId ID del país
+     * @return Número de empresas asociadas al país
+     */
+    @Query("SELECT COUNT(c) FROM Company c WHERE c.country.countryId = :countryId")
+    Long countByCountryId(@Param("countryId") Long countryId);
+
 }
 

@@ -36,7 +36,7 @@ spring:
     enabled: true
     outOfOrder: true
 server:
-  port: 8080
+  port: 9000
   error:
     include-stacktrace: never
 
@@ -62,4 +62,17 @@ logging:
     org:
       springframework:
         web: debug
+
+# Configuración de SpringDoc OpenAPI (Swagger)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    try-it-out-enabled: true
+  show-actuator: false
+  packages-to-scan: com.webstore.usersMs.controllers
+  paths-to-match: /**
 

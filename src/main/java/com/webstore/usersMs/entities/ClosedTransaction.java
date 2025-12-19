@@ -2,8 +2,11 @@ package com.webstore.usersMs.entities;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import com.webstore.usersMs.entities.enums.EtransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -58,7 +61,8 @@ public class ClosedTransaction {
     private Company company;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private EtransactionStatus status;
 
     @ManyToOne
     @JoinColumn(name = "billing_price_billing_price_id")

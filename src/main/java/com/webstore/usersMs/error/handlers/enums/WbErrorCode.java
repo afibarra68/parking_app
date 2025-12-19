@@ -17,12 +17,16 @@ public enum WbErrorCode implements IEnumResource {
     ACCESS_DENIED(HttpStatus.FORBIDDEN),
     ACCESS_DENIED_NO_COMPANY(HttpStatus.FORBIDDEN),
     OPEN_TRANSACTION_NOT_FOUND(HttpStatus.PRECONDITION_FAILED),
+    TRANSACTION_STATUS_NOT_OPEN(HttpStatus.PRECONDITION_FAILED),
     BILLING_PRICE_NOT_FOUND(HttpStatus.PRECONDITION_FAILED),
     INVALID_HASHING(HttpStatus.PRECONDITION_FAILED),
     BILLING_PRICE_RANGE_OVERLAP(HttpStatus.PRECONDITION_FAILED),
-    BILLING_PRICE_TIME_EXCEEDED(HttpStatus.PRECONDITION_FAILED);
+    BILLING_PRICE_TIME_EXCEEDED(HttpStatus.PRECONDITION_FAILED),
+    COUNTRY_HAS_RELATIONS(HttpStatus.PRECONDITION_FAILED);
 
     private final HttpStatus httpStatus;
+
+    private static final String PROPERTIES_NAME = "com/webstore/usersMs/exceptions/exception";
 
     WbErrorCode(HttpStatus status) {
         this.httpStatus = status;
@@ -43,6 +47,13 @@ public enum WbErrorCode implements IEnumResource {
     public String getResourceKey() {
         return this.name();
     }
+
+
+    @Override
+    public String getPropertiesName() {
+        return PROPERTIES_NAME;
+    }
+
 
     @Override
     public Logger getLog() {

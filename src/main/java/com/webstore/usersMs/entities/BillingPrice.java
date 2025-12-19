@@ -2,8 +2,12 @@ package com.webstore.usersMs.entities;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import com.webstore.usersMs.entities.enums.ETipoVehiculo;
+import com.webstore.usersMs.entities.enums.EBillingStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -37,7 +41,8 @@ public class BillingPrice {
     private Long billingPriceId;
 
     @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private EBillingStatus status;
 
     @Column(name = "date_start_disabled")
     private LocalDate dateStartDisabled;
@@ -61,15 +66,21 @@ public class BillingPrice {
     private BusinessService businessService;
 
     @Column(name = "\"start\"")
+    @Deprecated
     private Integer start;
 
     @Column(name = "\"end\"")
+    @Deprecated
     private Integer end;
+
+    @Column(name = "hours")
+    private Integer hours;
 
     @Column(name = "mount")
     private Long mount;
 
     @Column(name = "vehicule_type")
-    private String tipoVehiculo;
+    @Enumerated(EnumType.STRING)
+    private ETipoVehiculo tipoVehiculo;
 }
 

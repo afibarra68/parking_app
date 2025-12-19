@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import com.webstore.usersMs.dtos.DOpenTransaction;
 import com.webstore.usersMs.entities.OpenTransaction;
 import com.webstore.usersMs.entities.enums.ETipoVehiculo;
+import com.webstore.usersMs.entities.enums.EtransactionStatus;
+import com.webstore.usersMs.error.handlers.enums.EnumResource;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,18 +24,21 @@ public interface OpenTransactionMapper {
     @Mapping(target = "billingPrice", ignore = true)
     @Mapping(target = "appUserSeller", ignore = true)
     @Mapping(target = "tipoVehiculo", source = "tipoVehiculo", qualifiedByName = "stringToTipoVehiculo")
+    @Mapping(target = "status", source = "status", qualifiedByName = "enumResourceToEtransactionStatus")
     OpenTransaction fromDto(DOpenTransaction dto);
 
     @Mapping(target = "companyCompanyId", source = "company.companyId")
     @Mapping(target = "billingPriceBillingPriceId", source = "billingPrice.billingPriceId")
     @Mapping(target = "appUserAppUserSeller", source = "appUserSeller.appUserId")
     @Mapping(target = "tipoVehiculo", source = "tipoVehiculo", qualifiedByName = "tipoVehiculoToString")
+    @Mapping(target = "status", source = "status", qualifiedByName = "etransactionStatusToEnumResource")
     DOpenTransaction toDto(OpenTransaction entity);
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "billingPrice", ignore = true)
     @Mapping(target = "appUserSeller", ignore = true)
     @Mapping(target = "tipoVehiculo", source = "tipoVehiculo", qualifiedByName = "stringToTipoVehiculo")
+    @Mapping(target = "status", source = "status", qualifiedByName = "enumResourceToEtransactionStatus")
     OpenTransaction merge(DOpenTransaction dto, @MappingTarget OpenTransaction transaction);
 
     default List<DOpenTransaction> toList(List<OpenTransaction> list) {
@@ -60,5 +65,21 @@ public interface OpenTransactionMapper {
     default String tipoVehiculoToString(ETipoVehiculo tipoVehiculo) {
         return tipoVehiculo == null ? null : tipoVehiculo.name();
     }
-}
 
+    @Named("enumResourceToEtransactionStatus")
+    default EtransactionStatus enumResourceToEtransactionStatus(EnumResource enumResource) {
+        if (enumResource == null || enumResource.getId() == null) {
+            return null;
+        }
+        try {
+            return EtransactionStatus.valueOf(enumResource.getId());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    @Named("etransactionStatusToEnumResource")
+    default EnumResource etransactionStatusToEnumResource(EtransactionStatus status) {
+        return status == null ? null : new EnumResource(status.name());
+    }
+}

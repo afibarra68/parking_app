@@ -18,4 +18,13 @@ public interface CountryService {
     Page<DCountry> findByPageable(Long countryId, String description, String name, Pageable pageable) throws WbException;
 
     List<DCountry> findByQueryable(Long countryId, String description, String name) throws WbException;
+
+    /**
+     * Elimina un país por su ID.
+     * Valida que el país no tenga relaciones con otras entidades (como Company).
+     * 
+     * @param countryId ID del país a eliminar
+     * @throws WbException Si el país no existe o tiene relaciones con otras entidades
+     */
+    void delete(Long countryId) throws WbException;
 }

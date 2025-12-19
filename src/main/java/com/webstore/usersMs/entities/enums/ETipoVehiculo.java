@@ -1,9 +1,11 @@
 package com.webstore.usersMs.entities.enums;
 
 import com.webstore.usersMs.error.handlers.enums.IEnumResource;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
+@Log4j2
 public enum ETipoVehiculo implements IEnumResource {
 
     AUTOMOVIL,
@@ -28,7 +30,7 @@ public enum ETipoVehiculo implements IEnumResource {
 
     @Override
     public Logger getLog() {
-        return null;
+        return log;
     }
 }
 

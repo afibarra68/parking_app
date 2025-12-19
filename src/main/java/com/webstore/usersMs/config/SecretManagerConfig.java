@@ -27,7 +27,7 @@ import java.util.Map;
 @Log4j2
 public class SecretManagerConfig implements EnvironmentPostProcessor {
 
-    private static final String PROJECT_ID = "testauth20-394320";
+    private static final String PROJECT_ID = "649345514504";
     private static final String SECRET_NAME = "postgres_auth";
     private static final String PASSWORD_SECRET_NAME = "passwirk_sec";
     private final ObjectMapper objectMapper = new ObjectMapper();

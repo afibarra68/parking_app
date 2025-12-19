@@ -12,6 +12,8 @@ public interface UserRoleService {
 
     void create(DUserRole client) throws WbException;
 
+    void update(Long userRoleId, DUserRole role) throws WbException;
+
     void deleteByRoleId(Long userRoleId);
 
     Page<DUserRoleList> findByPageable(Long userRoleId, String numberIdentity, String role, Pageable pageable);
