@@ -96,6 +96,10 @@ public class PrinterImp implements PrinterInterface {
         return mapper.toDto(repository.save(dbPrinter));
     }
 
+    public DPrinter getPrinterByBusinessModel() {
+
+    }
+
     @Override
     public List<DPrinter> getBy(Long printerId, String printerName, String printerType, Long companyCompanyId, Long userUserId, Boolean isActive) throws WbException {
         List<Printer> data = repository.findBy(printerId, printerName, printerType, companyCompanyId, userUserId, isActive);

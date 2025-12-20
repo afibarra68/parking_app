@@ -1,6 +1,8 @@
 package com.webstore.usersMs.repositories;
 
 import com.webstore.usersMs.entities.TicketTemplate;
+import com.webstore.usersMs.entities.enums.EPrinterType;
+import com.webstore.usersMs.entities.enums.ETicketType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,6 +30,23 @@ public interface TicketTemplateRepository extends JpaRepository<TicketTemplate, 
             @Param("ticketType") String ticketType,
             @Param("companyCompanyId") Long companyCompanyId,
             @Param("userUserId") Long userUserId);
+
+    @Query("SELECT tt FROM TicketTemplate tt join Printer p on p. " +
+            "WHERE (tt.printerType = :printerType) " +
+            "AND ( tt.ticketType = :ticketType) " +
+            "AND (tt.company.companyId = tt.printer.companyId) " +
+            "AND (tt.printer.user = tt.user) " +
+            "AND (tt.user.appUserId = :userUserId)" +
+            "AND (tt.printer.isActive = :active)" +
+            "AND (tt.company.companyId = :companyId)"
+    )
+    Optional<TicketTemplate> findByOptions(
+            @Param("printerType") EPrinterType printerType,
+            @Param("ticketType") ETicketType ticketType,
+            @Param("userUserId") Long userUserId,
+            @Param("active") boolean active,
+            @Param("companyId") Long companyCompanyId
+            );
 
     @Query(value = "SELECT tt FROM TicketTemplate tt " +
             "WHERE (:ticketTemplateId IS NULL OR :ticketTemplateId = tt.ticketTemplateId) " +

@@ -23,7 +23,7 @@ public class DTicketTemplate {
 
     private String printerType; // tipo de impresora para imprimir (COM, WINDOWS, NETWORK)
 
-    private String ticketType; // tipo de tirilla (INGRESO, SALIDA, FACTURA, COMPROBANTE_INGRESO)
+    private String ticketType; // tipo de tirilla (INGRESO, SALIDA, FACTURA)
 
     private String invoice; // factura - template para facturas
 
@@ -32,6 +32,8 @@ public class DTicketTemplate {
     private Long companyCompanyId;
 
     private Long userUserId;
+
+    private Long printerPrinterId; // relación con la impresora
 
     private LocalDateTime createdDate;
 

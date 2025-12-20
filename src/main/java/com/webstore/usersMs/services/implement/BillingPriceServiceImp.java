@@ -253,9 +253,7 @@ public class BillingPriceServiceImp implements BillingPriceService {
             throw new WbException(BILLING_PRICE_NOT_FOUND);
         }
 
-        // Tomar la tarifa con más horas (la más cercana menor o igual)
-        // La consulta ya ordena por hours DESC, así que el primer elemento es el más
-        // cercano
+        // Tomar la tarifa con más horas (la más cercana menor o igual). La consulta ya ordena por hours DESC, así que el primer elemento es el más cercano
         BillingPrice selectedPrice = availablePrices.get(0);
         log.info("Tarifa más cercana encontrada: billingPriceId={}, hours={}, mount={}, tipoVehiculo={} " +
                 "(solicitadas: {} horas)",

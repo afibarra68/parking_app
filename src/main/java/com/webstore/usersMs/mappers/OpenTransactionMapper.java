@@ -2,6 +2,7 @@ package com.webstore.usersMs.mappers;
 
 import static org.mapstruct.ReportingPolicy.IGNORE;
 
+import com.webstore.usersMs.dtos.DMapField;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -33,6 +34,8 @@ public interface OpenTransactionMapper {
     @Mapping(target = "tipoVehiculo", source = "tipoVehiculo", qualifiedByName = "tipoVehiculoToString")
     @Mapping(target = "status", source = "status", qualifiedByName = "etransactionStatusToEnumResource")
     DOpenTransaction toDto(OpenTransaction entity);
+
+    DMapField toPrinter(DOpenTransaction entity);
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "billingPrice", ignore = true)

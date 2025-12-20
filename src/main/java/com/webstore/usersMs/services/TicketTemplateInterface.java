@@ -1,7 +1,10 @@
 package com.webstore.usersMs.services;
 
 import com.webstore.usersMs.dtos.DTicketTemplate;
+import com.webstore.usersMs.entities.enums.EReceiptModel;
+import com.webstore.usersMs.entities.enums.ETipoVehiculo;
 import com.webstore.usersMs.error.WbException;
+import com.webstore.usersMs.model.UserLogin;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +17,12 @@ public interface TicketTemplateInterface {
     DTicketTemplate update(DTicketTemplate ticketTemplate) throws WbException;
 
     List<DTicketTemplate> getBy(Long ticketTemplateId, String printerType, String ticketType, Long companyCompanyId, Long userUserId) throws WbException;
+
+    DTicketTemplate getByReceiptModel(
+            EReceiptModel receipt,
+            Long serviceId,
+            UserLogin authenticatedUser
+    ) throws WbException;
 
     Page<DTicketTemplate> findByPageable(Long ticketTemplateId, String printerType, String ticketType, Long companyCompanyId, Long userUserId, Pageable pageable);
 

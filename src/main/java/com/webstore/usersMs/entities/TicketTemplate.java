@@ -52,6 +52,10 @@ public class TicketTemplate {
     @JoinColumn(name = "user_user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "printer_printer_id")
+    private Printer printer;
+
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;

@@ -16,6 +16,8 @@ public interface OpenTransactionRepository extends JpaRepository<OpenTransaction
 
     Optional<OpenTransaction> findByOpenTransactionIdAndCompanyCompanyId(Long openTransactionId, Long companyId);
 
+    Optional<OpenTransaction> findByOpenTransactionId(Long openTransactionId);
+
     @Query(value = "SELECT ot.* FROM open_transaction ot " +
            "WHERE (:status IS NULL OR :status = '' OR ot.status ILIKE '%' || :status || '%') " +
            "AND (:companyCompanyId IS NULL OR ot.company_company_id = :companyCompanyId)",

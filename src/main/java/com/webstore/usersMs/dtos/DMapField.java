@@ -1,14 +1,11 @@
 package com.webstore.usersMs.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.webstore.usersMs.error.handlers.enums.EnumResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,15 +14,11 @@ import java.time.LocalTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class DOpenTransaction {
-
-    private Long openTransactionId;
-
-    private LocalTime startTime;
+public class DMapField {
 
     private LocalDate startDay;
+
+    private LocalTime startTime;
 
     private LocalTime endDate;
 
@@ -33,11 +26,17 @@ public class DOpenTransaction {
 
     private String currency;
 
-    private Long companyCompanyId;
+    private Long companyId;
+
+    private Long companyDescription;
+
+    private String nit;
+
+    private String identity;
 
     private EnumResource status;
 
-    private Long billingPriceBillingPriceId;
+    private Long BillingPriceId;
 
     private Double amount;
 
@@ -49,18 +48,14 @@ public class DOpenTransaction {
 
     private LocalDateTime operationDate;
 
-    private Long serviceTypeServiceTypeId;
+    private Long serviceId;
 
-    private Long appUserAppUserSeller;
+    private Long sellerName;
 
-    @NotNull
     private String vehiclePlate;
 
-    @NotNull
-    private String tipoVehiculo;
+    private String vehiculeType;
 
     private String printerType;
 
-    private String buildTicket;
 }
-

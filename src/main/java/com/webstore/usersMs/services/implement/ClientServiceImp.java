@@ -26,6 +26,7 @@ import lombok.extern.log4j.Log4j2;
 public class ClientServiceImp implements ClientService {
 
     private final ClientRepository repository;
+
     private final UserService userService;
 
     private final ClientMapper mapper = Mappers.getMapper(ClientMapper.class);

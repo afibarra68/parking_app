@@ -57,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            // Permitir que /auth/validate valide el token manualmente
+
             String requestPath = request.getRequestURI();
             if (requestPath != null && requestPath.contains("/auth/validate")) {
                 filterChain.doFilter(request, response);
@@ -156,8 +156,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                     .map(Object::toString)
                     .collect(Collectors.toList());
         }
-        
-        // Convertir companyId de forma segura (puede venir como Integer o Long)
+
         Long companyId = null;
         Object companyIdClaim = claims.get(_COMPANY_ID_CLAIM);
         if (companyIdClaim != null) {

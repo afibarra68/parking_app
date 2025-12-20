@@ -21,9 +21,9 @@ public class DPrinter {
 
     private String printerName;
 
-    private String printerType; // COM, WINDOWS, NETWORK
+    private String printerType;
 
-    private String connectionString; // COM port, printer name, or network address
+    private String connectionString;
 
     private Boolean isActive;
 

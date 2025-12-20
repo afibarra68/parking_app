@@ -18,18 +18,21 @@ public interface TicketTemplateMapper {
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "printer", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
     TicketTemplate fromDto(DTicketTemplate dto);
 
     @Mapping(target = "companyCompanyId", source = "company.companyId")
     @Mapping(target = "userUserId", source = "user.appUserId")
+    @Mapping(target = "printerPrinterId", source = "printer.printerId")
     DTicketTemplate toDto(TicketTemplate entity);
 
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "user", ignore = true)
+    @Mapping(target = "printer", ignore = true)
     TicketTemplate merge(DTicketTemplate dto, @MappingTarget TicketTemplate ticketTemplate);
 
     default List<DTicketTemplate> toList(List<TicketTemplate> list) {

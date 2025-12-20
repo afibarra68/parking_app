@@ -34,14 +34,12 @@ public class SecretManagerConfig implements EnvironmentPostProcessor {
 
     @Override
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-        // Verificar si está habilitado primero (tiene prioridad)
         String enabled = environment.getProperty("gcp.secret-manager.enabled", "true");
         if (!Boolean.parseBoolean(enabled)) {
             log.debug("Secret Manager está deshabilitado. Usando variables de entorno estándar.");
             return;
         }
         
-        // No ejecutar durante tests
         String[] activeProfiles = environment.getActiveProfiles();
         boolean isTest = java.util.Arrays.asList(activeProfiles).contains("test");
         

@@ -94,9 +94,9 @@ public class CompanyServiceImp implements CompanyService {
         UserLogin authenticatedUser = userService.getAuthenticatedUser();
         if (authenticatedUser == null) {
             log.error("Intento de obtener empresa sin usuario autenticado.");
-            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.ACCESS_DENIED);
+            throw new WbException(com.webstore.usersMs.error.handlers.enums.WbErrorCode.USER_NOT_FOUND);
         }
-        
+
         if (authenticatedUser.getCompanyId() == null) {
             log.warn("Usuario autenticado {} no tiene companyId asociado.", authenticatedUser.getAppUserId());
             throw new WbException(ACCESS_DENIED_NO_COMPANY);
