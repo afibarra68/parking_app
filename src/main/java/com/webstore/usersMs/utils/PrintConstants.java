@@ -4,7 +4,7 @@ public class PrintConstants {
 
     public static final String START_DAY = "startDay";
 
-    public static final String START_TIME = "startTime";
+    public static final String START_TIME = "startTme";
 
     public static final String END_DATE = "endDate";
 

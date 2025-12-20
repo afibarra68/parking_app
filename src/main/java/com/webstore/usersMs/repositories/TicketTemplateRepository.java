@@ -31,10 +31,10 @@ public interface TicketTemplateRepository extends JpaRepository<TicketTemplate, 
             @Param("companyCompanyId") Long companyCompanyId,
             @Param("userUserId") Long userUserId);
 
-    @Query("SELECT tt FROM TicketTemplate tt join Printer p on p. " +
+    @Query("SELECT tt FROM TicketTemplate tt  " +
             "WHERE (tt.printerType = :printerType) " +
             "AND ( tt.ticketType = :ticketType) " +
-            "AND (tt.company.companyId = tt.printer.companyId) " +
+            "AND (tt.company.companyId = tt.printer.company.companyId) " +
             "AND (tt.printer.user = tt.user) " +
             "AND (tt.user.appUserId = :userUserId)" +
             "AND (tt.printer.isActive = :active)" +

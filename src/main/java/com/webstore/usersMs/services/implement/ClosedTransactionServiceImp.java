@@ -89,7 +89,6 @@ public class ClosedTransactionServiceImp implements ClosedTransactionService {
         ClosedTransaction dbTransaction = entity.get();
         ClosedTransaction merged = mapper.merge(dto, dbTransaction);
 
-        // Update relationships if IDs are provided
         if (dto.getCompanyCompanyId() != null) {
             Optional<Company> company = companyRepository.findByCompanyId(dto.getCompanyCompanyId());
             company.ifPresent(merged::setCompany);

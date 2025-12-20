@@ -91,12 +91,8 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         try {
             String buildTicket = templatePrinterService.buildTicket(EReceiptModel.IN, printer, template);
             result.setBuildTicket(buildTicket);
-            log.info("Ticket construido exitosamente para openTransactionId: {}", savedEntity.getOpenTransactionId());
         } catch (Exception e) {
-            log.error("Error al construir el ticket para openTransactionId: {}",
-                    savedEntity.getOpenTransactionId(), e);
-            // No lanzar excepción, solo registrar el error y continuar
-            result.setBuildTicket("");
+            result.setBuildTicket("no ticket available");
         }
 
         return result;
@@ -104,40 +100,7 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
 
     @Override
     public DOpenTransaction update(DOpenTransaction dto) throws WbException {
-        Optional<OpenTransaction> entity = repository.findByOpenTransactionIdAndCompanyCompanyId(dto.getOpenTransactionId(), dto.getCompanyCompanyId());
-        if (entity.isEmpty()) {
-            throw new WbException(CLIENT_NOT_FOUND);
-        }
-
-        OpenTransaction dbTransaction = entity.get();
-        OpenTransaction merged = mapper.merge(dto, dbTransaction);
-
-        // Update relationships if IDs are provided
-        if (dto.getCompanyCompanyId() != null) {
-            Optional<Company> company = companyRepository.findByCompanyId(dto.getCompanyCompanyId());
-            company.ifPresent(merged::setCompany);
-        }
-
-        if (dto.getBillingPriceBillingPriceId() != null) {
-            Optional<BillingPrice> billingPrice = billingPriceRepository.findByBillingPriceId(dto.getBillingPriceBillingPriceId());
-            if (billingPrice.isPresent()) {
-                merged.setBillingPrice(billingPrice.get());
-                // Setear serviceTypeServiceTypeId desde el businessService del billingPrice
-                if (billingPrice.get().getBusinessService() != null &&
-                        billingPrice.get().getBusinessService().getBusinessServiceId() != null) {
-                    merged.setServiceTypeServiceTypeId(billingPrice.get().getBusinessService().getBusinessServiceId());
-                    log.info("serviceTypeServiceTypeId actualizado desde billingPrice: {}",
-                            billingPrice.get().getBusinessService().getBusinessServiceId());
-                }
-            }
-        }
-
-        if (dto.getAppUserAppUserSeller() != null) {
-            Optional<User> user = userRepository.findByAppUserId(dto.getAppUserAppUserSeller());
-            user.ifPresent(merged::setAppUserSeller);
-        }
-
-        return mapper.toDto(repository.save(merged));
+        return null;
     }
 
     @Override

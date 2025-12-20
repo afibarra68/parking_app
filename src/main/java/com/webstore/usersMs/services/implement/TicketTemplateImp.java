@@ -144,13 +144,13 @@ public class TicketTemplateImp implements TicketTemplateInterface {
     @Override
     public DTicketTemplate getByReceiptModel(EReceiptModel receipt, Long serviceId, UserLogin authenticatedUser) throws WbException {
         DTicketTemplateOptions options =  getModelReceiptType(receipt, authenticatedUser);
-         Optional <TicketTemplate>  template = repository.findByOptions(
+         Optional<TicketTemplate>  template = repository.findByOptions(
                 options.getPrinterType(),
                 options.getTicketType(),
                 options.getUserServiceId(),
                 options.isValidateAvailablePrinters(),
                 options.getCompanyId()
-        ).get();
+        );
 
         if (template.isPresent()) {
            return mapper.toDto(template.get());

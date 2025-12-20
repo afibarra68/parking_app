@@ -25,9 +25,9 @@ public interface BillingPriceMapper {
 
     String TIPO_VEHICULO_EXP = "java(EnumDataMapperUtils.map(ETipoVehiculo.class, dto.getTipoVehiculo()))";
 
-    String get_status_EXP = "java(EnumDataMapper.fromDto(entity.getStatus()))";
+    String GET_STATUS_EXP = "java(EnumDataMapper.fromDto(entity.getStatus()))";
 
-    String get_tipo_vehiculo_EXP = "java(EnumDataMapper.fromDto(entity.getTipoVehiculo()))";
+    String GET_TIPO_VEHICULO_EXP = "java(EnumDataMapper.fromDto(entity.getTipoVehiculo()))";
 
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "discount", ignore = true)
@@ -39,8 +39,8 @@ public interface BillingPriceMapper {
     @Mapping(target = "companyCompanyId", source = "company.companyId")
     @Mapping(target = "discountDiscountId", source = "discount.discountId")
     @Mapping(target = "businessServiceBusinessServiceId", source = "businessService.businessServiceId")
-    @Mapping(target = "status", expression = get_status_EXP)
-    @Mapping(target = "tipoVehiculo", expression = get_tipo_vehiculo_EXP)
+    @Mapping(target = "status", expression = GET_STATUS_EXP)
+    @Mapping(target = "tipoVehiculo", expression = GET_TIPO_VEHICULO_EXP)
     DBillingPrice toDto(BillingPrice entity);
 
     @Mapping(target = "company", ignore = true)

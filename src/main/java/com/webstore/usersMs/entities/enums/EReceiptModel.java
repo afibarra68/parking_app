@@ -9,7 +9,8 @@ import org.apache.logging.log4j.Logger;
 public enum EReceiptModel implements IEnumResource {
 
     IN,
-    OUT;
+    OUT,
+    LIQUID;
 
     private static final String RESOURCE_PREFIX = StringUtils.upperCase(EReceiptModel.class.getSimpleName()) + ".";
 

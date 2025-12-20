@@ -2,7 +2,11 @@ package com.webstore.usersMs.entities;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import com.webstore.usersMs.entities.enums.ELargeVariableTicket;
+import com.webstore.usersMs.entities.enums.EPrinterType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -36,7 +40,11 @@ public class Printer {
 
     private String printerName;
 
-    private String printerType;
+    @Enumerated(EnumType.STRING)
+    private EPrinterType printerType;
+
+    @Enumerated(EnumType.STRING)
+    private ELargeVariableTicket paperType;
 
     private String connectionString;
 

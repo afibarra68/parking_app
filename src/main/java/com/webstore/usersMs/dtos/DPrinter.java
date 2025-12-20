@@ -1,6 +1,7 @@
 package com.webstore.usersMs.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.webstore.usersMs.error.handlers.enums.EnumResource;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,9 @@ public class DPrinter {
 
     private String printerName;
 
-    private String printerType;
+    private EnumResource printerType;
+
+    private EnumResource paperType;
 
     private String connectionString;
 

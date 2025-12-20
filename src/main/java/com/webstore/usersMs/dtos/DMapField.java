@@ -16,41 +16,41 @@ import java.time.LocalTime;
 @NoArgsConstructor
 public class DMapField {
 
-    private LocalDate startDay;
+    private String startDay;
 
-    private LocalTime startTime;
+    private String startTime;
 
-    private LocalTime endDate;
+    private String endDate;
 
-    private LocalDate endTime;
+    private String endTime;
 
     private String currency;
 
-    private Long companyId;
+    private String companyId;
 
-    private Long companyDescription;
+    private String companyDescription;
 
     private String nit;
 
     private String identity;
 
-    private EnumResource status;
+    private String status;
 
-    private Long BillingPriceId;
+    private String BillingPriceId;
 
-    private Double amount;
+    private String amount;
 
     private String discount;
 
-    private Double totalAmount;
+    private String totalAmount;
 
     private String timeElapsed;
 
-    private LocalDateTime operationDate;
+    private String operationDate;
 
-    private Long serviceId;
+    private String serviceId;
 
-    private Long sellerName;
+    private String sellerName;
 
     private String vehiclePlate;
 

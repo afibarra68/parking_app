@@ -35,6 +35,8 @@ public interface OpenTransactionMapper {
     @Mapping(target = "status", source = "status", qualifiedByName = "etransactionStatusToEnumResource")
     DOpenTransaction toDto(OpenTransaction entity);
 
+
+    @Mapping(target = "status", source = "status.description")
     DMapField toPrinter(DOpenTransaction entity);
 
     @Mapping(target = "company", ignore = true)
