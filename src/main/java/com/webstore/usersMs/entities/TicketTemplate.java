@@ -2,7 +2,10 @@ package com.webstore.usersMs.entities;
 
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
+import com.webstore.usersMs.entities.enums.ETicketType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -36,9 +39,8 @@ public class TicketTemplate {
 
     private String template; // tirilla - contenido del template ESC/POS
 
-    private String printerType; // tipo de impresora para imprimir (COM, WINDOWS, NETWORK)
-
-    private String ticketType; // tipo de tirilla (INGRESO, SALIDA, FACTURA, COMPROBANTE_INGRESO)
+    @Enumerated(EnumType.STRING)
+    private ETicketType ticketType; // tipo de tirilla (INGRESO, SALIDA, FACTURA, COMPROBANTE_INGRESO)
 
     private String invoice; // factura - template para facturas
 
@@ -61,4 +63,3 @@ public class TicketTemplate {
     private LocalDateTime updatedDate;
 
 }
-

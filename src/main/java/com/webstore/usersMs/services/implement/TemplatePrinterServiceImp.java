@@ -1,67 +1,40 @@
 package com.webstore.usersMs.services.implement;
 
+import com.webstore.usersMs.dtos.DDataPrinting;
 import com.webstore.usersMs.dtos.DMapField;
-import com.webstore.usersMs.dtos.DOpenTransaction;
 import com.webstore.usersMs.dtos.DTicketTemplate;
-import com.webstore.usersMs.entities.OpenTransaction;
-import com.webstore.usersMs.entities.User;
-import com.webstore.usersMs.entities.BillingPrice;
-import com.webstore.usersMs.entities.Printer;
 import com.webstore.usersMs.entities.enums.EReceiptModel;
 import com.webstore.usersMs.error.WbException;
-import com.webstore.usersMs.repositories.OpenTransactionRepository;
-import com.webstore.usersMs.repositories.PrinterRepository;
 import com.webstore.usersMs.services.TemplatePrinterService;
-import com.webstore.usersMs.services.TicketTemplateInterface;
-import com.webstore.usersMs.services.UserService;
 import com.webstore.usersMs.utils.PrintConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-
-import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.webstore.usersMs.entities.enums.EReceiptModel.IN;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
 public class TemplatePrinterServiceImp implements TemplatePrinterService {
 
-    private static final String PRINT_ENDPOINT = "/print";
+    private static final String PLACEHOLDER_START = "{";
+
+    private static final String PLACEHOLDER_END = "}";
 
     @Override
-    public String buildTicket(EReceiptModel eReceiptModel, DMapField fieldSet, DTicketTemplate template) throws WbException {
+    public DDataPrinting buildTicket(EReceiptModel eReceiptModel, DMapField fieldSet, DTicketTemplate template)
+            throws WbException {
         HashMap<String, String> inOut;
         switch (eReceiptModel) {
             case IN:
                 inOut = generateKeyValueOnIn(fieldSet, template);
-                break;
+                return getDataPrinting(inOut, template);
             case OUT:
                 inOut = generateKeyValueOnOut(fieldSet, template);
-                break;
-            case LIQUID:
-                log.info("//:todo_for_implement");
-                break;
+                return getDataPrinting(inOut, template);
             default:
                 throw new IllegalStateException("Unexpected value: " + eReceiptModel);
         }
-
-        return null;
     }
 
     private HashMap<String, String> generateKeyValueOnOut(DMapField fieldSet, DTicketTemplate template) {
@@ -80,7 +53,7 @@ public class TemplatePrinterServiceImp implements TemplatePrinterService {
         drt.put(PrintConstants.AMOUNT, fieldSet.getAmount());
         drt.put(PrintConstants.DISCOUNT, fieldSet.getDiscount());
         drt.put(PrintConstants.TOTAL_AMOUNT, fieldSet.getTotalAmount());
-        drt.put(PrintConstants.TIME_ELAPSED, fieldSet.getTimeElapsed());;
+        drt.put(PrintConstants.TIME_ELAPSED, fieldSet.getTimeElapsed());
         drt.put(PrintConstants.OPERATION_DATE, fieldSet.getOperationDate());
         drt.put(PrintConstants.SERVICE_ID, fieldSet.getServiceId());
         drt.put(PrintConstants.SELLER_NAME, fieldSet.getSellerName());
@@ -93,7 +66,7 @@ public class TemplatePrinterServiceImp implements TemplatePrinterService {
     private HashMap<String, String> generateKeyValueOnIn(DMapField fieldSet, DTicketTemplate template) {
         HashMap<String, String> drt = new HashMap<>();
 
-        //todo:  more sets
+        // todo: more sets
         drt.put(PrintConstants.START_DAY, fieldSet.getStartDay());
         drt.put(PrintConstants.START_TIME, fieldSet.getStartTime());
         drt.put(PrintConstants.END_DATE, fieldSet.getEndDate());
@@ -108,7 +81,7 @@ public class TemplatePrinterServiceImp implements TemplatePrinterService {
         drt.put(PrintConstants.AMOUNT, fieldSet.getAmount());
         drt.put(PrintConstants.DISCOUNT, fieldSet.getDiscount());
         drt.put(PrintConstants.TOTAL_AMOUNT, fieldSet.getTotalAmount());
-        drt.put(PrintConstants.TIME_ELAPSED, fieldSet.getTimeElapsed());;
+        drt.put(PrintConstants.TIME_ELAPSED, fieldSet.getTimeElapsed());
         drt.put(PrintConstants.OPERATION_DATE, fieldSet.getOperationDate());
         drt.put(PrintConstants.SERVICE_ID, fieldSet.getServiceId());
         drt.put(PrintConstants.SELLER_NAME, fieldSet.getSellerName());
@@ -119,4 +92,104 @@ public class TemplatePrinterServiceImp implements TemplatePrinterService {
         return drt;
     }
 
+    private DDataPrinting getDataPrinting(HashMap<String, String> fieldSet, DTicketTemplate dataTemplate) {
+        String fieldTemplate = interpolateFields(fieldSet, dataTemplate.getTemplate());
+
+        return DDataPrinting.builder()
+                .template(fieldTemplate)
+                .printerName(dataTemplate.getPrinterName())
+                .printerType(dataTemplate.getPrinterType())
+                .conectionString(dataTemplate.getConectionString())
+                .build();
+    }
+
+    /**
+     * Interpola los campos del template reemplazando placeholders con valores del
+     * HashMap.
+     * Busca todos los placeholders en formato {campo} y los reemplaza con los
+     * valores correspondientes.
+     * Similar al estilo de HtmlParser.parseJsoup().
+     * 
+     * @param fieldSet       HashMap con los valores a reemplazar (claves de
+     *                       PrintConstants)
+     * @param bufferTemplate Template con placeholders en formato {campo}
+     * @return Template con placeholders reemplazados por valores
+     */
+    /**
+     * Interpola los campos del template reemplazando placeholders con valores del
+     * HashMap.
+     * Busca todos los placeholders en formato {campo} y los reemplaza con los
+     * valores correspondientes del HashMap usando las claves de PrintConstants.
+     * Similar al estilo de HtmlParser.parseJsoup().
+     * 
+     * @param fieldSet       HashMap con los valores a reemplazar (claves de
+     *                       PrintConstants)
+     * @param bufferTemplate Template con placeholders en formato {campo}
+     * @return Template con placeholders reemplazados por valores
+     */
+    private String interpolateFields(HashMap<String, String> fieldSet, String bufferTemplate) {
+        if (bufferTemplate == null || bufferTemplate.isEmpty()) {
+            return bufferTemplate;
+        }
+
+        StringBuilder result = new StringBuilder();
+        int startIndex = 0;
+        int templateLength = bufferTemplate.length();
+
+        while (startIndex < templateLength) {
+            int placeholderStart = bufferTemplate.indexOf(PLACEHOLDER_START, startIndex);
+
+            if (placeholderStart == -1) {
+                // No hay más placeholders, agregar el resto del template
+                result.append(bufferTemplate.substring(startIndex));
+                break;
+            }
+
+            // Agregar el texto antes del placeholder
+            result.append(bufferTemplate.substring(startIndex, placeholderStart));
+
+            // Buscar el cierre del placeholder
+            int placeholderEnd = bufferTemplate.indexOf(PLACEHOLDER_END, placeholderStart);
+            if (placeholderEnd == -1) {
+                // Placeholder sin cerrar, agregar el resto y terminar
+                result.append(bufferTemplate.substring(placeholderStart));
+                break;
+            }
+
+            // Extraer el nombre del placeholder (sin llaves) - debe coincidir con
+            // PrintConstants
+            String placeholderKey = bufferTemplate.substring(placeholderStart + 1, placeholderEnd);
+            String replacement = findReplacement(placeholderKey, fieldSet);
+
+            result.append(replacement);
+            startIndex = placeholderEnd + 1;
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Encuentra el valor de reemplazo para un placeholder buscando directamente
+     * en el HashMap usando la clave de PrintConstants.
+     * 
+     * @param placeholderKey Clave del placeholder (sin llaves) - debe coincidir
+     *                       con PrintConstants
+     * @param fieldSet       HashMap con los valores (claves de PrintConstants)
+     * @return Valor de reemplazo o cadena vacía si no se encuentra
+     */
+    private String findReplacement(String placeholderKey, HashMap<String, String> fieldSet) {
+        if (placeholderKey == null || placeholderKey.isEmpty()) {
+            return "";
+        }
+
+        // Buscar directamente en el HashMap usando la clave del placeholder
+        String value = fieldSet.get(placeholderKey);
+        if (value != null) {
+            return value;
+        }
+
+        // Si no se encuentra, retornar cadena vacía y registrar warning
+        log.warn("Placeholder '{}' no encontrado en fieldSet", placeholderKey);
+        return "";
+    }
 }

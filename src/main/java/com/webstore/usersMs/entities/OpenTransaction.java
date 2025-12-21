@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import com.webstore.usersMs.dtos.DCompany;
 import com.webstore.usersMs.entities.enums.ETipoVehiculo;
 
 @Data

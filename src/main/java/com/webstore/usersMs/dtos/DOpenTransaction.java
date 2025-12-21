@@ -57,10 +57,10 @@ public class DOpenTransaction {
     private String vehiclePlate;
 
     @NotNull
-    private String tipoVehiculo;
+    private EnumResource tipoVehiculo;
 
     private String printerType;
 
-    private String buildTicket;
+    private DDataPrinting buildTicket;
 }
 

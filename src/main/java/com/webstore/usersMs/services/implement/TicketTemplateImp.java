@@ -147,13 +147,12 @@ public class TicketTemplateImp implements TicketTemplateInterface {
          Optional<TicketTemplate>  template = repository.findByOptions(
                 options.getPrinterType(),
                 options.getTicketType(),
-                options.getUserServiceId(),
                 options.isValidateAvailablePrinters(),
                 options.getCompanyId()
         );
 
         if (template.isPresent()) {
-           return mapper.toDto(template.get());
+           return mapper.toDtoForPrinting(template.get());
         }
         throw new WbException(NO_TEMPLATE_FLAT_FOR_BUILDING);
 

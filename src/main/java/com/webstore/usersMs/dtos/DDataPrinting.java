@@ -16,33 +16,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DTicketTemplate {
+public class DDataPrinting {
 
-    private Long ticketTemplateId;
-
-    private String template; // tirilla - contenido del template ESC/POS
-
-    private EnumResource ticketType; // tipo de tirilla (INGRESO, SALIDA, FACTURA)
-
-    private String invoice; // factura - template para facturas
-
-    private String entryReceipt; // comprobante de ingreso - template para comprobantes de ingreso
-
-    private Long companyCompanyId;
-
-    private Long userUserId;
-
-    private Long printerPrinterId; // relación con la impresora
+    private String template;
 
     private String printerName;
 
     private String printerType;
 
     private String conectionString;
-
-    private LocalDateTime createdDate;
-
-    private LocalDateTime updatedDate;
 
 }
 

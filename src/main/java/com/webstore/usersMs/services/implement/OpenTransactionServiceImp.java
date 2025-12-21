@@ -6,6 +6,7 @@ import static com.webstore.usersMs.error.handlers.enums.WbErrorCode.COMPANY_SELL
 import com.webstore.usersMs.dtos.DBillingPrice;
 import com.webstore.usersMs.dtos.DBillingPriceCalculationResult;
 import com.webstore.usersMs.dtos.DCompany;
+import com.webstore.usersMs.dtos.DDataPrinting;
 import com.webstore.usersMs.dtos.DMapField;
 import com.webstore.usersMs.dtos.DPrinter;
 import com.webstore.usersMs.dtos.DTicketTemplate;
@@ -74,10 +75,12 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         OpenTransaction entity = mapper.fromDto(dto);
         DCompany company = companyService.getCurrentUserCompany();
         Optional<User> user = userRepository.findByAppUserId(authenticatedUser.getAppUserId());
-        DTicketTemplate template = templatesService.getByReceiptModel(EReceiptModel.IN, dto.getServiceTypeServiceTypeId(), authenticatedUser);
+        DTicketTemplate template = templatesService.getByReceiptModel(EReceiptModel.IN,
+                dto.getServiceTypeServiceTypeId(), authenticatedUser);
 
         entity.setStatus(EtransactionStatus.OPEN);
         entity.setCurrency(company.getCountry().getCurrency());
+        entity.setCompany(Company.builder().companyId(company.getCompanyId()).build());
         entity.setAppUserSeller(user.get());
         entity.setStartDay(now.toLocalDate());
         entity.setStartTime(now.toLocalTime());
@@ -88,12 +91,8 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
 
         DMapField printer = mapper.toPrinter(result);
 
-        try {
-            String buildTicket = templatePrinterService.buildTicket(EReceiptModel.IN, printer, template);
-            result.setBuildTicket(buildTicket);
-        } catch (Exception e) {
-            result.setBuildTicket("no ticket available");
-        }
+        DDataPrinting buildTicket = templatePrinterService.buildTicket(EReceiptModel.IN, printer, template);
+        result.setBuildTicket(buildTicket);
 
         return result;
     }
@@ -124,8 +123,7 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
 
         Optional<OpenTransaction> transaction = repository.findByVehiclePlateAndCompanyId(
                 vehiclePlate,
-                authenticatedUser.getCompanyId()
-        );
+                authenticatedUser.getCompanyId());
 
         if (transaction.isEmpty()) {
             log.warn("No se encontró transacción abierta para placa: {} y companyId: {}",
@@ -136,4 +134,3 @@ public class OpenTransactionServiceImp implements OpenTransactionService {
         return mapper.toDto(transaction.get());
     }
 }
-
